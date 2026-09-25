@@ -3,14 +3,14 @@ import { Scene, Math as PhaserMath } from 'phaser';
 export class WalkExample extends Scene {
     constructor() {
         // Регистрируем текстовый ID сцены в движке Phaser
-        super('GamePlay');
+        super('WalkExample');
     }
 
     preload() {
         // Метод preload выполняется ОДИН РАЗ при старте сцены.
         // Здесь мы только регистрируем пути к файлам. Картинки ещё не появились на экране.
-        this.load.image('player', 'assets/player_topdown.png');
-        this.load.image('vagon_map', 'assets/vagon_topdown.png');
+        this.load.image('player', 'assets/sprites&bg/player_topdown.png');
+        this.load.image('vagon_map', 'assets/sprites&bg/vagon_topdown.png');
     }
 
     create() {
