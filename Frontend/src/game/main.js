@@ -28,6 +28,7 @@ const config = {
         autoCenter: Scale.CENTER_BOTH
     },
     scene: [
+        GamePlay,
         Boot,
         Preloader,
         MainMenu,
@@ -35,3 +36,14 @@ const config = {
         GameOver
     ]
 };
+
+
+
+
+const StartGame = (parent) => {
+    return new Game({ ...config, parent });
+}
+
+// Пишем строго дефолтный экспорт:
+export default StartGame;
+
