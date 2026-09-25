@@ -1,5 +1,29 @@
+# Зависимости (самое главное!)
 node_modules/
 dist/
+build/
+
+# Локальные переменные окружения и секреты (токены, ключи API)
 .env
+.env.local
+.env.*.local
+
+# Локальные файлы редакторов кода
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Логи ошибок
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Системные файлы операционных систем
 .DS_Store
+Thumbs.db
