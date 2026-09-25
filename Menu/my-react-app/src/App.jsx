@@ -1,7 +1,10 @@
 function App() {
   return (
-    <div>
-      
+    <div id="screen">
+      <div id="panel">
+        <button id="btn1">Играть</button>
+        <button id="btn2">Профиль</button>
+      </div>
     </div>
   )
 }
