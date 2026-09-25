@@ -52,3 +52,8 @@ button{
   border-radius: 45px;
   background-color: rgb(163, 162, 162);
 }
+
+#scorecount{
+font: bold 20px medium, Arial;
+font-family: "Segoe UI", Arial, sans-serif;
+}
