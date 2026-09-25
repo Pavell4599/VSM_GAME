@@ -1,6 +1,6 @@
 import { Scene, Math as PhaserMath } from 'phaser';
 
-export class GamePlay extends Scene {
+export class WalkExample extends Scene {
     constructor() {
         // Регистрируем текстовый ID сцены в движке Phaser
         super('GamePlay');

@@ -1,4 +1,4 @@
-import { GamePlay } from './scenes/GamePlay';
+import { WalkExample } from './scenes/WalkExample';
 import { Boot } from './scenes/Boot';
 import { Game as MainGame } from './scenes/Game';
 import { GameOver } from './scenes/GameOver';
@@ -28,7 +28,7 @@ const config = {
         autoCenter: Scale.CENTER_BOTH
     },
     scene: [
-        GamePlay,
+        WalkExample,
         Boot,
         Preloader,
         MainMenu,
