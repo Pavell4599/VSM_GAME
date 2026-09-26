@@ -1,10 +1,9 @@
 {
-    "levelId": "level_01_standard_boarding",
+    "levelId": "standard",
     "vagonClass": "Стандарт",
-    "vagonName": "Вагон 2-го класса — Посадка пассажиров",
     
     "assets": {
-      "backgroundKey": "vagon_standard_bg",
+      "backgroundKey": "vagon_standard",
       "backgroundPath": "assets/sprites&bg/vagon.png",
       "playerSkin": "player_standard_suit"
     },
@@ -19,27 +18,6 @@
       { "seatId": "A2", "x": 250, "y": 240 },
       { "seatId": "B1", "x": 380, "y": 180 },
       { "seatId": "B2", "x": 380, "y": 240 }
-    ],
-    
-    "passengerQueue": [
-      {
-        "id": "passenger_01",
-        "name": "Иван Петрович",
-        "skinKey": "passenger_elderly",
-        "assignedSeatId": "A1",
-        "hasValidTicket": true,
-        "dialogueTriggerId": "check_ticket_elderly",
-        "spawnDelaySeconds": 2
-      },
-      {
-        "id": "passenger_02",
-        "name": "Подозрительный тип",
-        "skinKey": "passenger_hooligan",
-        "assignedSeatId": "B2",
-        "hasValidTicket": false,
-        "dialogueTriggerId": "check_ticket_hooligan",
-        "spawnDelaySeconds": 10
-      }
     ]
   }
   
