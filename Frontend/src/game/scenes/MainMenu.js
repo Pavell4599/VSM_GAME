@@ -25,12 +25,19 @@ export class MainMenu extends Scene {
             this.scene.start('DifficultySelect');
         });
 
-        // Кнопка ПРОФИЛЬ / РЕГИСТРАЦИЯ
-        const isAuth = !!localStorage.getItem('token');
-        const profileBtn = this.createButton(W / 2, 280, isAuth ? 'ПРОФИЛЬ' : 'РЕГИСТРАЦИЯ', '#f39c12', () => {
-            window.dispatchEvent(new CustomEvent('open-auth-overlay'));
+        // ✅ УМНАЯ КНОПКА: РЕГИСТРАЦИЯ или ПРОФИЛЬ
+        const isAuth = !!localStorage.getItem('token'); // Проверяем, есть ли токен
+        const btnText = isAuth ? 'ПРОФИЛЬ' : 'РЕГИСТРАЦИЯ';
+        
+        const profileBtn = this.createButton(W / 2, 280, btnText, '#f39c12', () => {
+            if (isAuth) {
+                // Если вошел -> открываем игровую сцену Профиля
+                this.scene.start('Profile');
+            } else {
+                // Если не вошел -> открываем HTML-оверлей регистрации/входа
+                window.dispatchEvent(new CustomEvent('open-auth-overlay'));
+            }
         });
-
         // Тир-лист
         this.add.text(W / 2, 380, 'ТАБЛИЦА ЛИДЕРОВ', {
             fontFamily: 'Arial Black', fontSize: 28, color: '#f1c40f',

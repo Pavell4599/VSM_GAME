@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { Scene, Math as PhaserMath } from 'phaser';
 
 export class GameLevel extends Scene {
     constructor() {
@@ -8,6 +8,7 @@ export class GameLevel extends Scene {
         this.safety = 70;
         this.sessionTime = 300;
         this.difficulty = 'standard';
+        this.randomEventTimer = null;
     }
 
     init(data) {
@@ -17,15 +18,11 @@ export class GameLevel extends Scene {
         this.difficulty = data.difficulty || 'standard';
     }
 
-
-
     preload() {
-        // Загружаем только те файлы, которые реально добавил твой друг
         this.load.image('player', 'assets/sprites&bg/players/player.png');
         this.load.image('vagon_map', 'assets/sprites&bg/vagons/first.png');
         this.load.image('scenery', 'assets/sprites&bg/bgs/ground.png');
-        // Если друг назвал файл NPC иначе, поменяй 'npc' на правильное имя файла без расширения
-        this.load.image('npc', 'assets/sprites&bg/players/player.png'); 
+        this.load.image('npc', 'assets/sprites&bg/players/player.png');
     }
 
     create() {
@@ -68,11 +65,25 @@ export class GameLevel extends Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,A,S,D');
 
-        // Таймер
+        // Таймер сессии
         this.timerText = this.add.text(screenWidth - 120, 20, this.formatTime(this.sessionTime), {
             fontFamily: 'Arial Black', fontSize: 24, color: '#c9a961',
             backgroundColor: '#0a1628', padding: { x: 12, y: 8 }
         }).setScrollFactor(0).setDepth(50);
+
+        // Кнопка завершения сессии
+        const finishBtn = this.add.text(screenWidth - 250, 60, 'ЗАВЕРШИТЬ', {
+            fontFamily: 'Arial', fontSize: 14, color: '#ffffff', 
+            backgroundColor: '#27ae60', padding: { x: 10, y: 6 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setScrollFactor(0).setDepth(50);
+        finishBtn.on('pointerdown', () => {
+            this.scene.start('SessionResult', {
+                loyalty: this.loyalty,
+                safety: this.safety,
+                sessionTime: this.sessionTime,
+                maxSessionTime: 300
+            });
+        });
 
         this.time.addEvent({
             delay: 1000,
@@ -82,6 +93,18 @@ export class GameLevel extends Scene {
                     this.sessionTime--;
                     this.timerText.setText(this.formatTime(this.sessionTime));
                     if (this.sessionTime <= 30) this.timerText.setColor('#e74c3c');
+                    
+                    if (this.sessionTime === 0) {
+                        this.scene.stop('NPCChat');
+                        this.scene.stop('Debriefing');
+                        // ✅ ПЕРЕХОД В СЕССИЮ РЕЗУЛЬТАТОВ
+                        this.scene.start('SessionResult', {
+                            loyalty: this.loyalty,
+                            safety: this.safety,
+                            sessionTime: this.sessionTime,
+                            maxSessionTime: 300 // или передай из init
+                        });
+                    }
                 }
             }
         });
@@ -97,16 +120,16 @@ export class GameLevel extends Scene {
         this.safetyBar = this.add.rectangle(20, 85, 200 * (this.safety / 100), 16, 0x3498db).setOrigin(0, 0.5).setScrollFactor(0).setDepth(51);
         this.safetyText = this.add.text(230, 85, this.safety + '%', { fontFamily: 'Arial Black', fontSize: 14, color: '#3498db' }).setOrigin(0, 0.5).setScrollFactor(0).setDepth(50);
 
-        // Кнопка выхода
         const exitBtn = this.add.text(screenWidth - 120, 60, 'МЕНЮ', {
             fontFamily: 'Arial', fontSize: 14, color: '#ffffff', backgroundColor: '#e74c3c', padding: { x: 10, y: 6 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setScrollFactor(0).setDepth(50);
         exitBtn.on('pointerdown', () => this.scene.start('MainMenu'));
 
-        // Создаем NPC
         this.createNPCs(vagonScaledWidth, vagonTopY, vagonHeight);
 
-        // Сканер координат
+        // Запускаем умный генератор событий
+        this.scheduleNextRandomEvent();
+
         this.input.on('pointerdown', (pointer) => {
             console.log(`{ "seatId": "A1", "x": ${Math.round(pointer.worldX)}, "y": ${Math.round(pointer.worldY)} },`);
         });
@@ -124,24 +147,70 @@ export class GameLevel extends Scene {
             const npc = this.physics.add.sprite(seat.x, seat.y, 'npc');
             npc.setScale(0.15);
             npc.setImmovable(true);
-            npc.setData('name', seat.name);
-            npc.setData('interacted', false);
+            
+            // Изначально скрыт, появляется только при событии или приближении
+            const indicator = this.add.text(seat.x, seat.y - 50, '❗', { 
+                fontFamily: 'Arial', fontSize: 28 
+            }).setOrigin(0.5).setVisible(false);
 
-            const indicator = this.add.text(seat.x, seat.y - 50, '💬', { fontFamily: 'Arial', fontSize: 24 }).setOrigin(0.5);
-            this.tweens.add({ targets: indicator, y: seat.y - 60, duration: 800, yoyo: true, repeat: -1 });
+            this.npcs.push({ 
+                sprite: npc, 
+                indicator: indicator, 
+                seat: seat, 
+                promptText: null,
+                needsAttention: false, 
+                isInteracting: false,
+                id: idx
+            });
+        });
+    }
 
-            this.npcs.push({ sprite: npc, indicator, seat, promptText: null });
+    // ✅ УМНЫЙ ПЛАНИРОВЩИК: Не спавнит события, если игрок уже в диалоге
+    scheduleNextRandomEvent() {
+        // Если открыт чат или разбор, проверяем снова через 2 секунды, но НЕ спавним событие
+        if (this.scene.isActive('NPCChat') || this.scene.isActive('Debriefing')) {
+            this.randomEventTimer = this.time.delayedCall(2000, () => this.scheduleNextRandomEvent());
+            return;
+        }
+
+        const delay = PhaserMath.Between(5000, 12000); // 5-12 секунд
+        
+        this.randomEventTimer = this.time.delayedCall(delay, () => {
+            const availableNPCs = this.npcs.filter(n => !n.needsAttention && !n.isInteracting);
+            
+            if (availableNPCs.length > 0) {
+                const randomNPC = availableNPCs[Math.floor(Math.random() * availableNPCs.length)];
+                randomNPC.needsAttention = true;
+
+                this.tweens.add({
+                    targets: randomNPC.sprite,
+                    y: randomNPC.seat.y - 15,
+                    duration: 150,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+
+                randomNPC.indicator.setVisible(true);
+                this.tweens.add({
+                    targets: randomNPC.indicator,
+                    scale: 1.3,
+                    duration: 400,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+            }
+            this.scheduleNextRandomEvent();
         });
     }
 
     update() {
-        // ✅ ИСПРАВЛЕНИЕ: Если открыт чат, блокируем движение, но таймер продолжает идти!
-        if (this.scene.isActive('NPCChat')) return;
-
+        // Блокировка движения во время диалогов
+        if (this.scene.isActive('NPCChat') || this.scene.isActive('Debriefing')) return;
         if (!this.player || !this.cursors || !this.wasd) return;
 
         this.sceneryBackground.tilePositionX += 1;
-        // ... остальной код update() без изменений ...
 
         const SPEED = 300;
         let velocityX = 0;
@@ -163,6 +232,7 @@ export class GameLevel extends Scene {
         this.checkNPCInteraction();
     }
 
+    // ✅ УНИВЕРСАЛЬНОЕ ВЗАИМОДЕЙСТВИЕ
     checkNPCInteraction() {
         this.npcs.forEach(npcData => {
             const dx = this.player.x - npcData.sprite.x;
@@ -170,30 +240,47 @@ export class GameLevel extends Scene {
             const distance = Math.hypot(dx, dy);
 
             if (distance < 100) {
+                // Определяем текст и цвет в зависимости от срочности
+                const isUrgent = npcData.needsAttention;
+                const promptTextStr = isUrgent ? '[E] Помочь (Срочно!)' : '[E] Говорить';
+                const promptColor = isUrgent ? '#e74c3c' : '#c9a961';
+
                 if (!npcData.promptText) {
                     npcData.promptText = this.add.text(
-                        npcData.sprite.x, npcData.sprite.y - 80,
-                        '[E] Говорить', {
-                        fontFamily: 'Arial Black', fontSize: 14, color: '#c9a961',
+                        npcData.sprite.x, npcData.sprite.y - 90,
+                        promptTextStr, {
+                        fontFamily: 'Arial Black', fontSize: 14, color: promptColor,
                         backgroundColor: '#0a1628', padding: { x: 10, y: 5 }
                     }).setOrigin(0.5).setDepth(60);
+                } else {
+                    // Динамическое обновление текста, если статус изменился, пока игрок стоит рядом
+                    npcData.promptText.setText(promptTextStr);
+                    npcData.promptText.setStyle({ color: promptColor });
                 }
 
                 if (this.input.keyboard.checkDown(this.input.keyboard.addKey('E'), 500)) {
-                    if (!npcData.sprite.getData('interacted')) {
-                        npcData.sprite.setData('interacted', true);
-                        npcData.indicator.setVisible(false);
-                        if (npcData.promptText) npcData.promptText.destroy();
-
-                        // ✅ ИСПРАВЛЕНИЕ: используем launch вместо start, чтобы GameLevel не ставился на паузу!
-                        this.scene.launch('NPCChat', {
-                            npcName: npcData.seat.name,
-                            scenarioContext: `Вагон класса ${this.difficulty}. Пассажир: ${npcData.seat.name}.`,
-                            loyalty: this.loyalty,
-                            safety: this.safety,
-                            returnScene: 'GameLevel'
-                        });
+                    npcData.isInteracting = true;
+                    npcData.needsAttention = false; // Сбрасываем флаг срочности
+                    
+                    // Останавливаем анимации
+                    this.tweens.killTweensOf(npcData.sprite);
+                    this.tweens.killTweensOf(npcData.indicator);
+                    npcData.sprite.y = npcData.seat.y;
+                    npcData.indicator.setVisible(false);
+                    
+                    if (npcData.promptText) {
+                        npcData.promptText.destroy();
+                        npcData.promptText = null;
                     }
+
+                    this.scene.launch('NPCChat', {
+                        npcName: npcData.seat.name,
+                        npcId: npcData.id, // Передаем ID, чтобы потом сбросить флаг isInteracting
+                        scenarioContext: `Вагон класса ${this.difficulty}. Пассажир: ${npcData.seat.name}.`,
+                        loyalty: this.loyalty,
+                        safety: this.safety,
+                        difficulty: this.difficulty
+                    });
                 }
             } else {
                 if (npcData.promptText) {
@@ -204,12 +291,17 @@ export class GameLevel extends Scene {
         });
     }
 
-    formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    // Метод для сброса состояния пассажира после разговора
+    resetNPCInteraction(npcId) {
+        const npc = this.npcs.find(n => n.id === npcId);
+        if (npc) {
+            npc.isInteracting = false;
+        }
     }
-    updateBars() {
+
+    updateBarsFromChat(loyalty, safety) {
+        this.loyalty = loyalty;
+        this.safety = safety;
         this.loyaltyBar.width = 200 * (this.loyalty / 100);
         this.safetyBar.width = 200 * (this.safety / 100);
         this.loyaltyText.setText(this.loyalty + '%');
@@ -217,5 +309,17 @@ export class GameLevel extends Scene {
 
         this.loyaltyBar.fillColor = this.loyalty < 30 ? 0xe74c3c : (this.loyalty < 60 ? 0xf39c12 : 0x27ae60);
         this.safetyBar.fillColor = this.safety < 30 ? 0xe74c3c : (this.safety < 60 ? 0xf39c12 : 0x3498db);
+
+        // ✅ СОХРАНЯЕМ ПРОГРЕСС (уровень растет каждые 100 очков)
+        const totalScore = Math.floor((this.loyalty + this.safety) / 2);
+        const newLevel = Math.floor(totalScore / 20) + 1; // Уровень 1-10
+        localStorage.setItem('playerLevel', newLevel.toString());
+        localStorage.setItem('playerScore', totalScore.toString());
+    }
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
     }
 }

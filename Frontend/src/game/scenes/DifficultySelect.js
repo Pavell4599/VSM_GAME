@@ -16,27 +16,37 @@ export class DifficultySelect extends Scene {
             stroke: '#000000', strokeThickness: 6
         }).setOrigin(0.5);
 
+        // Получаем уровень игрока из localStorage (или 1 по умолчанию)
+        const playerLevel = parseInt(localStorage.getItem('playerLevel') || '1');
+
         const difficulties = [
-            { id: 'standard', label: 'СТАНДАРТ', color: '#3498db', desc: 'Базовые ситуации' },
-            { id: 'comfort', label: 'КОМФОРТ', color: '#2ecc71', desc: 'Повышенные требования' },
-            { id: 'business', label: 'БИЗНЕС', color: '#f39c12', desc: 'Сложные конфликты' },
-            { id: 'first', label: 'ПЕРВЫЙ КЛАСС', color: '#e74c3c', desc: 'Максимальный стресс' }
+            { id: 'standard', label: 'СТАНДАРТ', color: '#3498db', desc: 'Базовые ситуации', requiredLevel: 1 },
+            { id: 'comfort', label: 'КОМФОРТ', color: '#2ecc71', desc: 'Повышенные требования', requiredLevel: 3 },
+            { id: 'business', label: 'БИЗНЕС', color: '#f39c12', desc: 'Сложные конфликты', requiredLevel: 5 },
+            { id: 'first', label: 'ПЕРВЫЙ КЛАСС', color: '#e74c3c', desc: 'Максимальный стресс', requiredLevel: 8 }
         ];
 
         let yPos = 140;
         for (const diff of difficulties) {
+            const isLocked = playerLevel < diff.requiredLevel;
+            const lockText = isLocked ? ` 🔒 (Требуется ур. ${diff.requiredLevel})` : '';
+            
             const btn = this.add.text(W / 2, yPos, 
-                `${diff.label}\n${diff.desc}`, {
-                fontFamily: 'Arial', fontSize: 22, color: '#ffffff',
-                backgroundColor: diff.color, padding: { x: 50, y: 20 }, align: 'center',
+                diff.label + lockText + '\n' + diff.desc, {
+                fontFamily: 'Arial', fontSize: 22, color: isLocked ? '#666666' : '#ffffff',
+                backgroundColor: isLocked ? '#333333' : diff.color, 
+                padding: { x: 50, y: 20 }, align: 'center',
                 stroke: '#000000', strokeThickness: 2
-            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+            }).setOrigin(0.5);
 
-            btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#ffffff', color: diff.color }));
-            btn.on('pointerout', () => btn.setStyle({ backgroundColor: diff.color, color: '#ffffff' }));
-            btn.on('pointerdown', () => {
-                this.showTimeSelect(diff);
-            });
+            if (!isLocked) {
+                btn.setInteractive({ useHandCursor: true });
+                btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#ffffff', color: diff.color }));
+                btn.on('pointerout', () => btn.setStyle({ backgroundColor: diff.color, color: '#ffffff' }));
+                btn.on('pointerdown', () => {
+                    this.showTimeSelect(diff);
+                });
+            }
             yPos += 110;
         }
 
@@ -45,7 +55,7 @@ export class DifficultySelect extends Scene {
         }).setOrigin(0.5).setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.scene.start('MainMenu'));
     }
-
+    
     showTimeSelect(difficulty) {
         const W = this.sys.game.config.width;
         const H = this.sys.game.config.height;
@@ -56,7 +66,6 @@ export class DifficultySelect extends Scene {
             fontFamily: 'Arial Black', fontSize: 28, color: '#c9a961', align: 'center'
         }).setOrigin(0.5).setDepth(51);
         
-        // НОВЫЕ ВАРИАНТЫ ВРЕМЕНИ
         const times = [
             { label: '5 МИНУТ', seconds: 300 },
             { label: '10 МИНУТ', seconds: 600 },
@@ -77,7 +86,7 @@ export class DifficultySelect extends Scene {
             btn.on('pointerdown', () => {
                 this.scene.start('GameLevel', {
                     difficulty: difficulty.id,
-                    sessionTime: time.seconds // Передаем выбранное время
+                    sessionTime: time.seconds
                 });
             });
             yPos += 80;
