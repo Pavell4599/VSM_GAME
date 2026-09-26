@@ -1,15 +1,668 @@
-body {
-    margin: 0;
-    padding: 0;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #000000;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --black: #0a0a0a;
+    --dark: #141414;
+    --gray: #1e1e1e;
+    --gray-light: #2a2a2a;
+    --silver: #c0c0c0;
+    --light: #e8e8e8;
+    --red: #e63946;
+    --red-dark: #b91c2c;
+    --font: 'Montserrat', sans-serif;
 }
 
-#app {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+body {
+    font-family: var(--font);
+    background: var(--black);
+    color: var(--light);
+    overflow-x: hidden;
+}
+
+/* ===== СТРАНИЦЫ ===== */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ===== НАВИГАЦИЯ ===== */
+.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.logo { font-size: 28px; font-weight: 800; letter-spacing: 3px; }
+.logo .accent { color: var(--red); }
+.nav-buttons { display: flex; gap: 12px; }
+
+/* ===== КНОПКИ ===== */
+.btn {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: var(--red);
+    color: white;
+    border-radius: 4px;
+}
+.btn-primary:hover {
+    background: var(--red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--silver);
+    border: 2px solid var(--silver);
+    border-radius: 4px;
+}
+.btn-secondary:hover {
+    background: var(--silver);
+    color: var(--black);
+}
+
+.btn-full { width: 100%; margin-top: 20px; padding: 14px; }
+
+/* ===== ГЕРОЙ ===== */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--black) 0%, var(--dark) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(230, 57, 70, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 120px 60px 60px;
+    gap: 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    font-size: 68px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -2px;
+}
+.hero-title .accent { color: var(--red); }
+
+.hero-subtitle {
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--silver);
+    margin-bottom: 15px;
+}
+
+.hero-desc {
+    font-size: 15px;
+    color: var(--silver);
+    opacity: 0.85;
+    margin-bottom: 50px;
+    line-height: 1.7;
+    max-width: 500px;
+}
+
+.hero-stats { display: flex; gap: 50px; }
+
+.stat { text-align: center; }
+.stat-value {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1;
+}
+.stat-label {
+    font-size: 12px;
+    color: var(--silver);
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-image { flex: 1; display: flex; justify-content: center; }
+
+.train-visual {
+    width: 600px;
+    height: 380px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    border-radius: 20px;
+    border: 2px solid var(--gray-light);
+    position: relative;
+    overflow: hidden;
+}
+.train-visual::before {
+    content: '🚄';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    opacity: 0.3;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+}
+.scroll-indicator span {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--silver);
+    margin-bottom: 12px;
+    opacity: 0.7;
+}
+.arrow {
+    width: 20px; height: 20px;
+    border-right: 2px solid var(--red);
+    border-bottom: 2px solid var(--red);
+    transform: rotate(45deg);
+    margin: 0 auto;
+}
+
+/* ===== ЛИДЕРБОРД ===== */
+.leaderboard-section {
+    min-height: 100vh;
+    padding: 100px 60px;
+    background: var(--dark);
+}
+
+.container { max-width: 1100px; margin: 0 auto; }
+
+.section-title {
+    font-size: 42px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 60px;
+    letter-spacing: -1px;
+}
+.section-title .accent { color: var(--red); }
+
+.leaderboard {
+    display: grid;
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 22px 30px;
+    background: var(--gray);
+    border-radius: 8px;
+    border-left: 4px solid var(--red);
+    transition: all 0.3s ease;
+}
+.leaderboard-item:hover {
+    transform: translateX(10px);
+    background: var(--gray-light);
+}
+
+.lb-rank {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--red);
+    width: 60px;
+}
+.lb-name { flex: 1; font-size: 18px; font-weight: 600; }
+.lb-score { font-size: 20px; font-weight: 700; color: var(--silver); }
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: var(--silver);
+    padding: 50px;
+    opacity: 0.6;
+}
+
+/* ===== СТРАНИЦЫ КОНТЕНТА ===== */
+.page-content {
+    padding: 120px 60px 60px;
+    min-height: 100vh;
+    background: var(--dark);
+}
+
+.page-title {
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 60px;
+    letter-spacing: -1px;
+}
+.page-title .accent { color: var(--red); }
+
+/* ===== СЕТКА СЛОЖНОСТИ ===== */
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.difficulty-card {
+    padding: 35px;
+    background: var(--gray);
+    border-radius: 12px;
+    border: 2px solid var(--gray-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.difficulty-card:hover:not(.locked) {
+    border-color: var(--red);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(230, 57, 70, 0.2);
+}
+.difficulty-card.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.difficulty-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.difficulty-card p {
+    font-size: 14px;
+    color: var(--silver);
+    margin-bottom: 15px;
+}
+.difficulty-card .lock-icon {
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+/* ===== СЕТКА ВРЕМЕНИ ===== */
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.time-btn {
+    padding: 30px;
+    background: var(--gray);
+    border: 2px solid var(--gray-light);
+    border-radius: 12px;
+    color: var(--light);
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.time-btn:hover {
+    border-color: var(--red);
+    background: var(--gray-light);
+    transform: translateY(-3px);
+}
+
+/* ===== ПРОФИЛЬ ===== */
+.profile-page { max-width: 1000px; margin: 0 auto; }
+
+.profile-card {
+    background: var(--gray);
+    border-radius: 16px;
+    padding: 40px;
+    border: 2px solid var(--gray-light);
+    margin-bottom: 60px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.profile-level {
+    font-size: 16px;
+    color: var(--silver);
+}
+
+.xp-bar-container { margin-bottom: 30px; }
+.xp-bar-label {
+    font-size: 14px;
+    color: var(--silver);
+    margin-bottom: 10px;
+}
+.xp-bar-bg {
+    height: 12px;
+    background: var(--gray-light);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.xp-bar-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.profile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.p-stat {
+    text-align: center;
+    padding: 20px;
+    background: var(--gray-light);
+    border-radius: 10px;
+}
+.p-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--red);
+}
+.p-label {
+    font-size: 12px;
+    color: var(--silver);
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ===== АЧИВКИ ===== */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 60px;
+}
+
+.achievement-card {
+    padding: 25px 15px;
+    background: var(--gray);
+    border-radius: 10px;
+    border: 2px solid var(--gray-light);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.achievement-card.unlocked {
+    border-color: var(--red);
+    background: var(--gray-light);
+}
+.achievement-card.locked { opacity: 0.4; }
+
+.achievement-icon { font-size: 36px; margin-bottom: 10px; }
+.achievement-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.achievement-desc { font-size: 11px; color: var(--silver); line-height: 1.4; }
+
+/* ===== СОВЕТ ===== */
+.tip-card {
+    background: var(--gray);
+    border-radius: 12px;
+    padding: 30px;
+    border-left: 4px solid var(--red);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--silver);
+}
+
+/* ===== РЕЗУЛЬТАТЫ ===== */
+.result-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--black);
+}
+
+.result-card {
+    background: var(--gray);
+    border-radius: 16px;
+    padding: 50px;
+    border: 2px solid var(--red);
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+}
+
+.result-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin: 40px 0;
+}
+
+.result-stat {
+    padding: 25px;
+    background: var(--gray-light);
+    border-radius: 10px;
+}
+
+.result-label {
+    font-size: 14px;
+    color: var(--silver);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-value {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--light);
+}
+
+.result-value.xp { color: #f39c12; }
+.result-value.level { color: var(--red); }
+
+.result-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.result-buttons .btn { padding: 15px 40px; font-size: 15px; }
+
+
+/* ===== ИГРОВОЙ ЭКРАН ===== */
+#game-wrapper {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--black);
+    z-index: 2000;
+}
+#game-wrapper:not(.hidden) { display: block; }
+#game-container { width: 100%; height: 100%; }
+
+.btn-exit {
+    position: fixed;
+    top: 20px; left: 20px;
+    z-index: 2001;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 12px 25px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn-exit:hover {
+    background: var(--red-dark);
+    transform: translateX(-3px);
+}
+
+/* ===== МОДАЛКА ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 3000;
     justify-content: center;
     align-items: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: var(--dark);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 45px;
+    width: 450px;
+    max-width: 90%;
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px; right: 20px;
+    background: none;
+    border: none;
+    color: var(--silver);
+    font-size: 32px;
+    cursor: pointer;
+}
+.modal-close:hover { color: var(--red); }
+
+.modal-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.tab {
+    flex: 1;
+    padding: 14px;
+    background: none;
+    border: none;
+    color: var(--silver);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+.tab.active {
+    color: var(--red);
+    border-bottom-color: var(--red);
+}
+
+.modal-form h3 {
+    font-size: 22px;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.modal-form input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    background: var(--gray);
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    color: var(--light);
+    font-family: var(--font);
+    font-size: 14px;
+}
+.modal-form input:focus {
+    outline: none;
+    border-color: var(--red);
+}
+.modal-form input::placeholder { color: var(--silver); opacity: 0.5; }
+
+.error-msg {
+    color: var(--red);
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 20px;
+}
+
+.hidden { display: none !important; }
+
+/* ===== АНИМАЦИИ ===== */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 968px) {
+    .hero-content { flex-direction: column; text-align: center; padding: 100px 30px 50px; }
+    .hero-title { font-size: 42px; }
+    .hero-stats { justify-content: center; }
+    .difficulty-grid { grid-template-columns: 1fr; }
+    .time-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav { padding: 15px 20px; }
+    .page-content { padding: 100px 20px 40px; }
 }

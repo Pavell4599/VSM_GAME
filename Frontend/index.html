@@ -5,124 +5,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ВСМ-400 | Тренажёр проводников</title>
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <!-- Главный экран -->
-    <section class="hero">
-        <!-- Навигация -->
+
+    <!-- ===== СТРАНИЦА 1: ЛЕНДИНГ + МЕНЮ + ТИР-ЛИСТ ===== -->
+    <div id="page-landing" class="page active">
         <nav class="nav">
-            <div class="logo">ВСМ<span class="logo-accent">-400</span></div>
+            <div class="logo">ВСМ<span class="accent">-400</span></div>
             <div class="nav-buttons">
-                <button class="btn btn-primary" id="btn-play">ИГРАТЬ</button>
-                <button class="btn btn-secondary" id="btn-profile">ПРОФИЛЬ</button>
+                <button class="btn btn-primary" onclick="showPage('page-difficulty'); renderDifficulty();">ИГРАТЬ</button>
+                <button class="btn btn-secondary" onclick="handleProfileClick()">ПРОФИЛЬ</button>
             </div>
         </nav>
 
-        <!-- Контент героя -->
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">ТРЕНАЖЁР <span class="accent">ПРОВОДНИКОВ</span></h1>
-                <p class="hero-subtitle">Высокоскоростная магистраль нового поколения</p>
-                <p class="hero-description">Отрабатывайте нештатные ситуации в безопасной виртуальной среде. Принимайте решения за секунды.</p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-value">400</div>
-                        <div class="stat-label">км/ч</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">4</div>
-                        <div class="stat-label">класса вагона</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">∞</div>
-                        <div class="stat-label">сценариев</div>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">ТРЕНАЖЁР <span class="accent">ПРОВОДНИКОВ</span></h1>
+                    <p class="hero-subtitle">Высокоскоростная магистраль нового поколения</p>
+                    <p class="hero-desc">Отрабатывайте нештатные ситуации в безопасной виртуальной среде. Принимайте решения за секунды.</p>
+                    <div class="hero-stats">
+                        <div class="stat"><div class="stat-value">400</div><div class="stat-label">км/ч</div></div>
+                        <div class="stat"><div class="stat-value">4</div><div class="stat-label">класса вагона</div></div>
+                        <div class="stat"><div class="stat-value">∞</div><div class="stat-label">сценариев</div></div>
                     </div>
                 </div>
-            </div>
-            <div class="hero-image">
-                <img src="assets/sprites&bg/bgs/vsm-train.png" alt="ВСМ-400" class="train-img" onerror="this.style.display='none'">
-                <div class="train-placeholder"></div>
-            </div>
-        </div>
-
-        <!-- Индикатор скролла -->
-        <div class="scroll-indicator">
-            <span>ЛИДЕРБОРД</span>
-            <div class="scroll-arrow"></div>
-        </div>
-    </section>
-
-    <!-- Таблица лидеров -->
-    <section class="leaderboard-section">
-        <div class="container">
-            <h2 class="section-title">ТАБЛИЦА <span class="accent">ЛИДЕРОВ</span></h2>
-            <div class="leaderboard" id="leaderboard">
-                <!-- Заполняется из API -->
-                <div class="loading">Загрузка...</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Модальное окно авторизации -->
-    <div class="modal-overlay" id="auth-modal">
-        <div class="modal">
-            <button class="modal-close" id="modal-close">×</button>
-            
-            <div class="modal-tabs">
-                <button class="tab active" data-tab="login">ВХОД</button>
-                <button class="tab" data-tab="register">РЕГИСТРАЦИЯ</button>
-            </div>
-
-            <form class="modal-form" id="login-form">
-                <h3>Вход в систему</h3>
-                <input type="text" id="login-username" placeholder="Имя пользователя" required>
-                <input type="password" id="login-password" placeholder="Пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">ВОЙТИ</button>
-                <div class="error-message" id="login-error"></div>
-            </form>
-
-            <form class="modal-form hidden" id="register-form">
-                <h3>Регистрация проводника</h3>
-                <input type="text" id="reg-username" placeholder="Придумайте имя" required>
-                <input type="password" id="reg-password" placeholder="Придумайте пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">ЗАРЕГИСТРИРОВАТЬСЯ</button>
-                <div class="error-message" id="reg-error"></div>
-            </form>
-
-            <div class="modal-form hidden" id="profile-view">
-                <h3>Профиль проводника</h3>
-                <div class="profile-info">
-                    <div class="profile-avatar" id="profile-avatar">П</div>
-                    <div class="profile-details">
-                        <div class="profile-name" id="profile-name">Проводник</div>
-                        <div class="profile-level">Уровень <span id="profile-level">1</span></div>
-                    </div>
+                <div class="hero-image">
+                    <div class="train-visual"></div>
                 </div>
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <div class="profile-stat-value" id="profile-xp">0</div>
-                        <div class="profile-stat-label">Опыт</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="profile-stat-value" id="profile-score">0</div>
-                        <div class="profile-stat-label">Очки</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="profile-stat-value" id="profile-sessions">0</div>
-                        <div class="profile-stat-label">Сессии</div>
-                    </div>
+            </div>
+            <div class="scroll-indicator" onclick="document.getElementById('leaderboard-section').scrollIntoView({behavior:'smooth'})">
+                <span>ЛИДЕРБОРД</span>
+                <div class="arrow"></div>
+            </div>
+        </section>
+
+        <section class="leaderboard-section" id="leaderboard-section">
+            <div class="container">
+                <h2 class="section-title">ТАБЛИЦА <span class="accent">ЛИДЕРОВ</span></h2>
+                <div class="leaderboard" id="leaderboard">
+                    <div class="loading">Загрузка...</div>
                 </div>
-                <button class="btn btn-secondary btn-full" id="btn-logout">ВЫЙТИ</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== СТРАНИЦА 2: ВЫБОР СЛОЖНОСТИ ===== -->
+    <div id="page-difficulty" class="page">
+        <nav class="nav">
+            <div class="logo">ВСМ<span class="accent">-400</span></div>
+            <button class="btn btn-secondary" onclick="showPage('page-landing')">← НАЗАД</button>
+        </nav>
+        <div class="page-content">
+            <h1 class="page-title">ВЫБЕРИТЕ <span class="accent">КЛАСС ВАГОНА</span></h1>
+            <div class="difficulty-grid" id="difficulty-grid"></div>
+        </div>
+    </div>
+
+    <!-- ===== СТРАНИЦА 3: ВЫБОР ВРЕМЕНИ ===== -->
+    <div id="page-time" class="page">
+        <nav class="nav">
+            <div class="logo">ВСМ<span class="accent">-400</span></div>
+            <button class="btn btn-secondary" onclick="showPage('page-difficulty')">← НАЗАД</button>
+        </nav>
+        <div class="page-content">
+            <h1 class="page-title">ДЛИТЕЛЬНОСТЬ <span class="accent">СЕССИИ</span></h1>
+            <div class="time-grid">
+                <button class="time-btn" onclick="startGame(300)">5 МИНУТ</button>
+                <button class="time-btn" onclick="startGame(600)">10 МИНУТ</button>
+                <button class="time-btn" onclick="startGame(900)">15 МИНУТ</button>
+                <button class="time-btn" onclick="startGame(1200)">20 МИНУТ</button>
+                <button class="time-btn" onclick="startGame(1800)">30 МИНУТ</button>
             </div>
         </div>
     </div>
 
-    <!-- Контейнер для Phaser игры (скрыт по умолчанию) -->
-    <div id="game-container" class="game-container hidden"></div>
+    <!-- ===== СТРАНИЦА 4: ПРОФИЛЬ ===== -->
+    <div id="page-profile" class="page">
+        <nav class="nav">
+            <div class="logo">ВСМ<span class="accent">-400</span></div>
+            <button class="btn btn-secondary" onclick="showPage('page-landing')">← НАЗАД</button>
+        </nav>
+        <div class="page-content profile-page">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">П</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profile-name">Проводник</div>
+                        <div class="profile-level">Уровень <span id="profile-level">1</span></div>
+                    </div>
+                </div>
+                <div class="xp-bar-container">
+                    <div class="xp-bar-label">Опыт: <span id="profile-xp">0</span> / <span id="profile-xp-needed">100</span> XP</div>
+                    <div class="xp-bar-bg"><div class="xp-bar-fill" id="profile-xp-bar"></div></div>
+                </div>
+                <div class="profile-stats-grid">
+                    <div class="p-stat"><div class="p-value" id="profile-score">0</div><div class="p-label">Очки</div></div>
+                    <div class="p-stat"><div class="p-value" id="profile-sessions">0</div><div class="p-label">Сессии</div></div>
+                    <div class="p-stat"><div class="p-value" id="profile-loyalty">70%</div><div class="p-label">Лояльность</div></div>
+                    <div class="p-stat"><div class="p-value" id="profile-safety">70%</div><div class="p-label">Безопасность</div></div>
+                </div>
+            </div>
+
+            <h2 class="section-title">🏆 <span class="accent">ДОСТИЖЕНИЯ</span></h2>
+            <div class="achievements-grid" id="achievements-grid"></div>
+
+            <h2 class="section-title">💡 <span class="accent">СОВЕТ ДНЯ</span></h2>
+            <div class="tip-card">
+                <p id="daily-tip">Загрузка...</p>
+            </div>
+
+            <button class="btn btn-secondary" onclick="logout()" style="margin-top:30px;">ВЫЙТИ ИЗ АККАУНТА</button>
+        </div>
+    </div>
+
+    <!-- ===== СТРАНИЦА 5: РЕЗУЛЬТАТЫ СЕССИИ ===== -->
+    <div id="page-result" class="page">
+        <div class="page-content result-page">
+            <div class="result-card">
+                <h1 class="page-title">🎯 ИТОГИ <span class="accent">СЕССИИ</span></h1>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="result-label">Лояльность</div>
+                        <div class="result-value" id="result-loyalty">70%</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-label">Безопасность</div>
+                        <div class="result-value" id="result-safety">70%</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-label">Получено XP</div>
+                        <div class="result-value xp" id="result-xp">+50</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-label">Новый уровень</div>
+                        <div class="result-value level" id="result-level">1</div>
+                    </div>
+                </div>
+                <div class="result-buttons">
+                    <button class="btn btn-secondary" onclick="showPage('page-landing')">В МЕНЮ</button>
+                    <button class="btn btn-primary" onclick="loadProfilePage(); showPage('page-profile');">ПРОФИЛЬ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ИГРОВОЙ ЭКРАН (Phaser) ===== -->
+    <div id="game-wrapper" class="hidden">
+        <div id="game-container"></div>
+    </div>
+    <!-- ===== МОДАЛКА АВТОРИЗАЦИИ ===== -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div class="modal-tabs">
+                <button class="tab active" onclick="switchTab('login')">ВХОД</button>
+                <button class="tab" onclick="switchTab('register')">РЕГИСТРАЦИЯ</button>
+            </div>
+            <form class="modal-form" id="login-form" onsubmit="handleLogin(event)">
+                <h3>Вход в систему</h3>
+                <input type="text" id="login-username" placeholder="Имя пользователя" required>
+                <input type="password" id="login-password" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary btn-full">ВОЙТИ</button>
+                <div class="error-msg" id="login-error"></div>
+            </form>
+            <form class="modal-form hidden" id="register-form" onsubmit="handleRegister(event)">
+                <h3>Регистрация проводника</h3>
+                <input type="text" id="reg-username" placeholder="Придумайте имя" required>
+                <input type="password" id="reg-password" placeholder="Придумайте пароль" required>
+                <button type="submit" class="btn btn-primary btn-full">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+                <div class="error-msg" id="reg-error"></div>
+            </form>
+        </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
-    <script type="module" src="/src/ui.js"></script>
 </body>
 </html>
