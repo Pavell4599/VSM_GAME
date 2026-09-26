@@ -1,22 +1,6 @@
 import { register, login, getProfile } from './api.js';
 
-// Проверка токена при загрузке
-window.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        // Проверим, не истек ли токен
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            if (payload.exp * 1000 < Date.now()) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('refresh');
-            }
-        } catch (e) {
-            localStorage.removeItem('token');
-        }
-    }
-});
-
+// Делаем функции доступными для onclick в index.html
 window.showTab = (tab) => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
@@ -99,7 +83,7 @@ async function loadProfile() {
     if (profile.achievements && profile.achievements.length > 0) {
         profile.achievements.forEach(ach => {
             const li = document.createElement('li');
-            li.textContent = `${ach.icon} ${ach.title}: ${ach.description}`;
+            li.textContent = `${ach.icon || '🏆'} ${ach.title}: ${ach.description}`;
             achList.appendChild(li);
         });
     } else {
@@ -113,6 +97,6 @@ window.addEventListener('open-auth-overlay', async () => {
     if (localStorage.getItem('token')) {
         await loadProfile();
     } else {
-        showTab('login');
+        window.showTab('login');
     }
 });

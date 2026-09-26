@@ -33,7 +33,6 @@ export class Preloader extends Scene {
             loadingText.destroy();
         });
 
-        // Загружаем ТОЛЬКО реальные файлы
         this.load.image('player', 'assets/sprites&bg/players/player.png');
         this.load.image('vagon_map', 'assets/sprites&bg/vagons/first.png');
         this.load.image('scenery', 'assets/sprites&bg/bgs/ground.png');
@@ -43,19 +42,12 @@ export class Preloader extends Scene {
         const W = this.sys.game.config.width;
         const H = this.sys.game.config.height;
 
-        // Создаем текстуру 'background' программно ПЕРЕД переходом в MainMenu
         const bg = this.make.graphics({ x: 0, y: 0, add: false });
         bg.fillGradientStyle(0x0a1628, 0x0a1628, 0x1a2a4a, 0x1a2a4a, 1);
         bg.fillRect(0, 0, W, H);
-        // Добавим декоративные элементы
-        bg.fillStyle(0xc9a961, 0.1);
-        for (let i = 0; i < 20; i++) {
-            bg.fillCircle(Math.random() * W, Math.random() * H, Math.random() * 100 + 50);
-        }
         bg.generateTexture('background', W, H);
         bg.destroy();
 
-        // Создаем текстуру 'logo'
         const logo = this.make.graphics({ x: 0, y: 0, add: false });
         logo.fillStyle(0xc9a961, 1);
         logo.fillRoundedRect(0, 0, 300, 80, 15);
