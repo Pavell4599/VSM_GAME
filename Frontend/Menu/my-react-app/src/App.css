@@ -1,0 +1,25 @@
+body{
+    background-color: rgb(215, 215, 215);
+}
+#screen{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+#panel{
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  padding-right: 115px;
+  gap: 20px;
+  border: 2px, solid, brown;
+  border-radius: 45px;
+  background-color: rgb(163, 162, 162);
+}
+#leaderboard{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
