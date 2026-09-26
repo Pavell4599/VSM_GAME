@@ -31,3 +31,5 @@ lerna-debug.log*
 # Системные файлы операционных систем
 .DS_Store
 Thumbs.db
+
+venv/
