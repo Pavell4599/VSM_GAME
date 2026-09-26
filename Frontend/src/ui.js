@@ -1,102 +1,99 @@
 import { register, login, getProfile } from './api.js';
 
-// Делаем функции доступными для onclick в index.html
-window.showTab = (tab) => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
-    
-    if (tab === 'login') {
-        document.querySelector('.tab-btn:first-child').classList.add('active');
-        document.getElementById('login-form').style.display = 'block';
-    } else {
-        document.querySelector('.tab-btn:last-child').classList.add('active');
-        document.getElementById('register-form').style.display = 'block';
-    }
-};
+// Переключение вкладок
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const tabName = tab.dataset.tab;
+        document.querySelectorAll('.modal-form').forEach(f => f.classList.add('hidden'));
+        document.getElementById(`${tabName}-form`).classList.remove('hidden');
+    });
+});
 
-window.closeOverlay = () => {
-    document.getElementById('auth-overlay').classList.remove('active');
-};
-
-window.handleRegister = async () => {
-    const username = document.getElementById('reg-username').value.trim();
-    const password = document.getElementById('reg-password').value;
-    const errorEl = document.getElementById('reg-error');
-    errorEl.textContent = '';
+// Открытие модалки
+document.getElementById('btn-profile').addEventListener('click', async () => {
+    const modal = document.getElementById('auth-modal');
+    modal.classList.add('active');
     
-    if (!username || !password) {
-        errorEl.textContent = 'Заполните все поля';
-        return;
-    }
-    
-    const result = await register(username, password);
-    if (result.success) {
+    const token = localStorage.getItem('token');
+    if (token) {
         await loadProfile();
     } else {
-        errorEl.textContent = result.error;
+        document.querySelectorAll('.modal-form').forEach(f => f.classList.add('hidden'));
+        document.getElementById('login-form').classList.remove('hidden');
     }
-};
+});
 
-window.handleLogin = async () => {
-    const username = document.getElementById('login-username').value.trim();
+// Закрытие модалки
+document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('auth-modal').classList.remove('active');
+});
+
+document.getElementById('auth-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'auth-modal') {
+        e.target.classList.remove('active');
+    }
+});
+
+// Форма входа
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
     const errorEl = document.getElementById('login-error');
-    errorEl.textContent = '';
     
     const result = await login(username, password);
     if (result.success) {
+        localStorage.setItem('username', username);
         await loadProfile();
     } else {
         errorEl.textContent = result.error;
     }
-};
+});
 
-window.handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh');
-    document.getElementById('profile-view').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-    document.getElementById('auth-tabs').style.display = 'flex';
-};
+// Форма регистрации
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('reg-username').value;
+    const password = document.getElementById('reg-password').value;
+    const errorEl = document.getElementById('reg-error');
+    
+    const result = await register(username, password);
+    if (result.success) {
+        localStorage.setItem('username', username);
+        await loadProfile();
+    } else {
+        errorEl.textContent = result.error;
+    }
+});
 
+// Загрузка профиля
 async function loadProfile() {
     const profile = await getProfile();
     if (!profile) return;
     
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('register-form').style.display = 'none';
-    document.getElementById('auth-tabs').style.display = 'none';
-    document.getElementById('profile-view').style.display = 'block';
+    document.querySelectorAll('.modal-form').forEach(f => f.classList.add('hidden'));
+    document.getElementById('profile-view').classList.remove('hidden');
     
     document.getElementById('profile-name').textContent = profile.username;
     document.getElementById('profile-level').textContent = profile.level;
     document.getElementById('profile-xp').textContent = profile.xp;
     document.getElementById('profile-score').textContent = profile.total_score;
-    document.getElementById('profile-scenarios').textContent = profile.scenarios_completed;
-    document.getElementById('profile-loyalty').textContent = profile.loyalty_skill;
-    document.getElementById('profile-safety').textContent = profile.safety_skill;
-    document.getElementById('profile-avatar').src = profile.avatar_url;
-    document.getElementById('daily-tip').textContent = profile.daily_tip;
-    
-    const achList = document.getElementById('achievements-list');
-    achList.innerHTML = '';
-    if (profile.achievements && profile.achievements.length > 0) {
-        profile.achievements.forEach(ach => {
-            const li = document.createElement('li');
-            li.textContent = `${ach.icon || '🏆'} ${ach.title}: ${ach.description}`;
-            achList.appendChild(li);
-        });
-    } else {
-        achList.innerHTML = '<li>Пока нет достижений</li>';
-    }
+    document.getElementById('profile-sessions').textContent = profile.scenarios_completed || 0;
+    document.getElementById('profile-avatar').textContent = profile.username.substring(0, 2).toUpperCase();
 }
 
-// Слушаем событие открытия оверлея из Phaser
-window.addEventListener('open-auth-overlay', async () => {
-    document.getElementById('auth-overlay').classList.add('active');
-    if (localStorage.getItem('token')) {
-        await loadProfile();
-    } else {
-        window.showTab('login');
-    }
+// Выход
+document.getElementById('btn-logout').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh');
+    localStorage.removeItem('username');
+    document.getElementById('auth-modal').classList.remove('active');
+});
+
+// Скролл к лидерборду
+document.querySelector('.scroll-indicator').addEventListener('click', () => {
+    document.querySelector('.leaderboard-section').scrollIntoView({ behavior: 'smooth' });
 });
