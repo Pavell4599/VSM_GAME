@@ -1,8 +1,9 @@
-import { WalkExample } from './scenes/WalkExample';
+import { GameLevel } from './scenes/GameLevel';
 import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
 import { Preloader } from './scenes/Preloader';
 import { AUTO, Game, Scale } from 'phaser';
+
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -26,7 +27,7 @@ const config = {
         autoCenter: Scale.CENTER_BOTH
     },
     scene: [
-        WalkExample,
+        GameLevel,
         Boot,
         Preloader,
         MainMenu,

@@ -7,44 +7,60 @@ export class GameLevel extends Scene {
     }
 
     preload() {
-        // Метод preload выполняется ОДИН РАЗ при старте сцены.
-        // Здесь мы только регистрируем пути к файлам. Картинки ещё не появились на экране.
-        this.load.image('player', 'assets/sprites&bg/player_topdown.png');
-        this.load.image('vagon_map', 'assets/sprites&bg/vagon_topdown.png');
+        // Регистрируем новые пути к ассетам
+        this.load.image('player', 'assets/sprites&bg/player.png');
+        this.load.image('vagon_map', 'assets/sprites&bg/vagon.png');
     }
 
     create() {
-        // Ставим фон вагона по центру
+        // 1. Ставим фон вагона по центру
         this.add.image(400, 300, 'vagon_map');
 
+        // 2. ВОЗВРАЩАЕМ ИГРОКА: Создаем проводника
+        this.player = this.physics.add.sprite(100, 300, 'player');
+        
+        // Масштабируем и настраиваем физику (подгони масштаб под размеры своей новой картинки)
+        this.player.setScale(0.3);
+        this.player.refreshBody();
+        this.player.setCollideWorldBounds(true);
+        this.player.setOrigin(0.5, 0.5);
+        this.player.body.setAllowRotation(false);
 
+        // 3. ВОЗВРАЩАЕМ УПРАВЛЕНИЕ: Инициализируем клавиши
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys('W,A,S,D');
     }
 
-
     update() {
-        // Метод update — это игровой цикл. Он выполняется непрерывно, примерно 60 раз в секунду (60 FPS).
-        // Вся динамика игры пишется здесь.
+        // Проверяем, что игрок и клавиши созданы, прежде чем обрабатывать ввод
+        if (!this.player || !this.cursors || !this.wasd) return;
 
-        const SPEED = 300; // Базовая скорость нашего проводника (пикселей в секунду)
+        const SPEED = 300; // Базовая скорость нашего проводника
         
-        // Каждую миллисекунду создаем две переменные. Изначально они равны 0 (персонаж стоит).
         let velocityX = 0;
         let velocityY = 0;
 
         // --- БЛОК 1: СБОР НАЖАТИЙ КЛАВИШ ---
-
-        // Проверяем горизонтальную ось (Влево / Вправо)
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            velocityX = -SPEED; // Идем влево (координата X уменьшается)
+            velocityX = -SPEED; 
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            velocityX = SPEED;  // Идем вправо (координата X увеличивается)
+            velocityX = SPEED;  
         }
 
-        // Проверяем вертикальную ось (Вверх / Вниз)
         if (this.cursors.up.isDown || this.wasd.W.isDown) {
-            velocityY = -SPEED; // Идем вверх (В Phaser координата Y уменьшается по направлению к верху экрана)
+            velocityY = -SPEED; 
         } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-            velocityY = SPEED;  // Идем вниз (координата Y увеличивается к низу экрана)
+            velocityY = SPEED;  
+        }
+
+        // --- БЛОК 2: ПРИМЕНЕНИЕ СКОРОСТИ ---
+        this.player.setVelocityX(velocityX);
+        this.player.setVelocityY(velocityY);
+
+        // --- БЛОК 3: ПОВОРOТ ЛИЦОМ К ДВИЖЕНИЮ ---
+        if (velocityX !== 0 || velocityY !== 0) {
+            let angle = PhaserMath.Angle.Between(0, 0, velocityX, velocityY);
+            this.player.rotation = angle;
         }
     }
 }
