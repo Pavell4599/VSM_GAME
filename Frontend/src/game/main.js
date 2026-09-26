@@ -1,48 +1,37 @@
-import { GameLevel } from './scenes/GameLevel';
+import { Game, AUTO, Scale } from 'phaser';
 import { Boot } from './scenes/Boot';
+import { Preloader } from './scenes/Preloader';
 import { MainMenu } from './scenes/MainMenu';
 import { DifficultySelect } from './scenes/DifficultySelect';
-import { Preloader } from './scenes/Preloader';
-import { AUTO, Game, Scale } from 'phaser';
+import { GameLevel } from './scenes/GameLevel';
+import { NPCChat } from './scenes/NPCChat';
 
-
-//  Find out more information about the Game Config at:
-//  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config = {
     type: AUTO,
     width: 1280,
     height: 720,
     parent: 'game-container',
-    backgroundColor: '#028af8',
-    // --- ОБЯЗАТЕЛЬНО ДОБАВЬ ЭТОТ БЛОК ДЛЯ ТОП-ДАУН ДВИЖЕНИЯ ---
+    backgroundColor: '#0a1628',
     physics: {
         default: 'arcade',
-        arcade: {
-            gravity: { y: 0 }, // Для вида сверху гравитация равна 0
-            debug: false       // Поставь true, если захочешь видеть хитбоксы персонажа
-        }
+        arcade: { gravity: { y: 0 }, debug: false }
     },
-    // ---------------------------------------------------------
     scale: {
-        // Меняем FIT на ENVELOP, чтобы игра поглощала чёрные боковые зоны
-        mode: Scale.ENVELOP, 
+        mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH
     },
     scene: [
-        GameLevel,
         Boot,
         Preloader,
         MainMenu,
         DifficultySelect,
+        GameLevel,
+        NPCChat
     ]
 };
-
-
-
 
 const StartGame = (parent) => {
     return new Game({ ...config, parent });
 }
 
-// Пишем строго дефолтный экспорт:
 export default StartGame;

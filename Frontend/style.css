@@ -1,18 +1,277 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #0a1628;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    color: #ffffff;
+}
+
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== ОВЕРЛЕЙ ===== */
 .overlay {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    justify-content: center; align-items: center; z-index: 1000;
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(10, 22, 40, 0.92);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
+
+.overlay.active { display: flex; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== МОДАЛЬНОЕ ОКНО ===== */
 .modal {
-    background: #1a1a1a; color: white; padding: 30px; border-radius: 12px;
-    width: 400px; text-align: center; position: relative; border: 2px solid #00ffff;
+    background: linear-gradient(145deg, #1a2a4a 0%, #0f1d35 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 16px;
+    width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid #c9a961;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(201, 169, 97, 0.2);
+    position: relative;
 }
-.modal input {
-    width: 90%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white;
+
+.modal::-webkit-scrollbar { width: 8px; }
+.modal::-webkit-scrollbar-track { background: #0f1d35; }
+.modal::-webkit-scrollbar-thumb { background: #c9a961; border-radius: 4px; }
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    background: none;
+    border: none;
+    color: #c9a961;
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
-.modal button {
-    padding: 10px 20px; background: #00ffff; color: black; border: none; cursor: pointer; font-weight: bold;
+
+.close-btn:hover { transform: scale(1.2); }
+
+/* ===== ВКЛАДКИ ===== */
+#auth-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #2a3a5a;
+    padding-bottom: 0;
 }
-.close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-.avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffd700; }
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    color: #8899bb;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover { color: #c9a961; }
+
+.tab-btn.active {
+    color: #c9a961;
+    border-bottom: 3px solid #c9a961;
+}
+
+/* ===== ФОРМЫ ===== */
+.auth-form h2 {
+    margin-bottom: 25px;
+    color: #c9a961;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 14px 16px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #2a3a5a;
+    color: white;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: #c9a961;
+    background: rgba(201, 169, 97, 0.05);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+}
+
+.auth-form input::placeholder { color: #556688; }
+
+.auth-form button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #c9a961 0%, #a8893f 100%);
+    color: #0a1628;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    border-radius: 8px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+}
+
+.auth-form button:hover {
+    background: linear-gradient(135deg, #d4b872 0%, #b8994f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201, 169, 97, 0.3);
+}
+
+.error {
+    color: #e74c3c;
+    margin-top: 12px;
+    font-size: 14px;
+    text-align: center;
+    min-height: 20px;
+}
+
+/* ===== ПРОФИЛЬ ===== */
+#profile-view h2 {
+    color: #c9a961;
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #c9a961;
+    display: block;
+    margin: 0 auto 15px;
+    box-shadow: 0 0 20px rgba(201, 169, 97, 0.3);
+    object-fit: cover;
+}
+
+#profile-name {
+    text-align: center;
+    font-size: 22px;
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.stats {
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #2a3a5a;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 15px;
+}
+
+.stat:last-child { border-bottom: none; }
+
+.stat-label { color: #8899bb; }
+.stat span:last-child {
+    color: #c9a961;
+    font-weight: 700;
+}
+
+/* ===== АЧИВКИ И СОВЕТЫ ===== */
+.achievements, .tips {
+    margin: 15px 0;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid #2a3a5a;
+}
+
+.achievements h4, .tips h4 {
+    color: #c9a961;
+    margin-bottom: 12px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+#achievements-list {
+    list-style: none;
+}
+
+#achievements-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: #ccd;
+    line-height: 1.4;
+}
+
+#achievements-list li:last-child { border-bottom: none; }
+
+.tips p {
+    color: #aabbcc;
+    font-style: italic;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/* ===== КНОПКА ВЫХОДА ===== */
+.danger-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.danger-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 520px) {
+    .modal {
+        width: 95%;
+        padding: 25px;
+    }
+}

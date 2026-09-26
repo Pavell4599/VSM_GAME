@@ -1,28 +1,32 @@
-const API_URL = 'http://127.0.0.1:8000/api';
-
-export async function register(username, password) {
-    const res = await fetch(`${API_URL}/auth/register/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (res.ok) {
-        localStorage.setItem('token', data.access);
-        return { success: true };
-    }
-    return { success: false, error: data.error };
-}
-
-export async function getProfile() {
+export async function aiChat(message, scenarioContext = '') {
     const token = localStorage.getItem('token');
-    const res = await fetch(`${API_URL}/profile/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return res.ok ? await res.json() : null;
-}
+    
+    try {
+        const res = await fetch(`${API_URL}/ai/chat/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ message, scenario_context: scenarioContext })
+        });
+        
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (error) {
+        console.warn('AI сервер недоступен, используем заглушку (stub)...');
+    }
 
-export async function getLeaderboard() {
-    const res = await fetch(`${API_URL}/leaderboard/`);
-    return res.ok ? await res.json() : [];
+    // === ЗАГЛУШКА (STUB) ДЛЯ ДЕМОНСТРАЦИИ НА ХАКАТОНЕ ===
+    // Имитирует задержку "печатания" ИИ
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({
+                response: `[ЗАГЛУШКА ИИ] Понял вас. Это тестовый ответ, так как модель Qwen пока не запущена локально. Но механика изменения шкал работает!`,
+                loyalty_change: 5,   // ИИ повышает лояльность
+                safety_change: 2     // ИИ немного повышает безопасность
+            });
+        }, 1200); // Задержка 1.2 секунды для реалистичности
+    });
 }

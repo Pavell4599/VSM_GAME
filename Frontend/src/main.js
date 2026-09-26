@@ -1,7 +1,6 @@
-import StartGame from './game/main';
+import StartGame from './game/main.js';
+import './ui.js';
 
-// Phaser запустится автоматически при загрузке страницы index.html
 window.addEventListener('DOMContentLoaded', () => {
-    // Монтируем игру в блок 'game-container', который прописан в index.html
     StartGame('game-container');
 });

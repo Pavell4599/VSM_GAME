@@ -1,46 +1,67 @@
 import { Scene } from 'phaser';
 
-export class Preloader extends Scene
-{
-    constructor ()
-    {
+export class Preloader extends Scene {
+    constructor() {
         super('Preloader');
     }
 
-    init ()
-    {
-        //  We loaded this image in our Boot Scene, so we can display it here
-        this.add.image(512, 384, 'background');
+    init() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
 
-        //  A simple progress bar. This is the outline of the bar.
-        this.add.rectangle(512, 384, 468, 32).setStrokeStyle(1, 0xffffff);
-
-        //  This is the progress bar itself. It will increase in size from the left based on the % of progress.
-        const bar = this.add.rectangle(512-230, 384, 4, 28, 0xffffff);
-
-        //  Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
-        this.load.on('progress', (progress) => {
-
-            //  Update the progress bar (our bar is 464px wide, so 100% = 464px)
-            bar.width = 4 + (460 * progress);
-
+        const loadingText = this.make.text({
+            x: width / 2, y: height / 2 - 50,
+            text: 'Загрузка...',
+            style: { font: '20px monospace', color: '#ffffff' }
         });
+        loadingText.setOrigin(0.5, 0.5);
+
+        const progressBar = this.add.graphics();
+        const progressBox = this.add.graphics();
+        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillRect(240, 270, 320, 50);
+
+        this.load.on('progress', (value) => {
+            progressBar.clear();
+            progressBar.fillStyle(0xc9a961, 1);
+            progressBar.fillRect(250, 280, 300 * value, 30);
+        });
+
+        this.load.on('complete', () => {
+            progressBar.destroy();
+            progressBox.destroy();
+            loadingText.destroy();
+        });
+
+        // Загружаем ТОЛЬКО реальные файлы
+        this.load.image('player', 'assets/sprites&bg/players/player.png');
+        this.load.image('vagon_map', 'assets/sprites&bg/vagons/first.png');
+        this.load.image('scenery', 'assets/sprites&bg/bgs/ground.png');
     }
 
-    preload ()
-    {
-        //  Load the assets for the game - Replace with your own assets
-        this.load.setPath('assets');
+    create() {
+        const W = this.sys.game.config.width;
+        const H = this.sys.game.config.height;
 
-        this.load.image('logo', 'logo.png');
-    }
+        // Создаем текстуру 'background' программно ПЕРЕД переходом в MainMenu
+        const bg = this.make.graphics({ x: 0, y: 0, add: false });
+        bg.fillGradientStyle(0x0a1628, 0x0a1628, 0x1a2a4a, 0x1a2a4a, 1);
+        bg.fillRect(0, 0, W, H);
+        // Добавим декоративные элементы
+        bg.fillStyle(0xc9a961, 0.1);
+        for (let i = 0; i < 20; i++) {
+            bg.fillCircle(Math.random() * W, Math.random() * H, Math.random() * 100 + 50);
+        }
+        bg.generateTexture('background', W, H);
+        bg.destroy();
 
-    create ()
-    {
-        //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
-        //  For example, you can define global animations here, so we can use them in other scenes.
+        // Создаем текстуру 'logo'
+        const logo = this.make.graphics({ x: 0, y: 0, add: false });
+        logo.fillStyle(0xc9a961, 1);
+        logo.fillRoundedRect(0, 0, 300, 80, 15);
+        logo.generateTexture('logo', 300, 80);
+        logo.destroy();
 
-        //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
         this.scene.start('MainMenu');
     }
 }

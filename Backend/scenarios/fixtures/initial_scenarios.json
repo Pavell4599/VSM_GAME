@@ -1,0 +1,117 @@
+[
+  {
+    "model": "scenarios.scenario",
+    "pk": 1,
+    "fields": {
+      "title": "Конфликт в вагоне Стандарт",
+      "description": "Пассажир недоволен местом и требует пересадку",
+      "difficulty": "standard",
+      "time_limit": 90,
+      "xp_reward": 100,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "scenarios.scenarionode",
+    "pk": 1,
+    "fields": {
+      "scenario": 1,
+      "node_id": "start",
+      "node_type": "dialog",
+      "text": "Пассажир громко говорит: 'Мне дали место у туалета! Это неприемлемо! Я хочу другое место немедленно!'",
+      "speaker": "NPC",
+      "time_limit": null
+    }
+  },
+  {
+    "model": "scenarios.scenarionode",
+    "pk": 2,
+    "fields": {
+      "scenario": 1,
+      "node_id": "choice_1",
+      "node_type": "choice",
+      "text": "Как вы отреагируете?",
+      "speaker": "Система",
+      "time_limit": 30
+    }
+  },
+  {
+    "model": "scenarios.scenariochoice",
+    "pk": 1,
+    "fields": {
+      "node": 2,
+      "text": "Извиниться и проверить наличие свободных мест",
+      "next_node": 3,
+      "loyalty_change": 20,
+      "safety_change": 10,
+      "xp_reward": 50,
+      "is_optimal": true,
+      "feedback": "Отлично! Вы проявили эмпатию и профессионализм."
+    }
+  },
+  {
+    "model": "scenarios.scenariochoice",
+    "pk": 2,
+    "fields": {
+      "node": 2,
+      "text": "Сказать, что это его место по билету и ничего нельзя сделать",
+      "next_node": 4,
+      "loyalty_change": -30,
+      "safety_change": 0,
+      "xp_reward": 10,
+      "is_optimal": false,
+      "feedback": "Формально верно, но пассажир остался недоволен. Можно было проявить больше эмпатии."
+    }
+  },
+  {
+    "model": "scenarios.scenariochoice",
+    "pk": 3,
+    "fields": {
+      "node": 2,
+      "text": "Игнорировать пассажира и уйти",
+      "next_node": 5,
+      "loyalty_change": -50,
+      "safety_change": -20,
+      "xp_reward": 0,
+      "is_optimal": false,
+      "feedback": "Плохое решение. Конфликт эскалировал, пассажир может написать жалобу."
+    }
+  },
+  {
+    "model": "scenarios.scenarionode",
+    "pk": 3,
+    "fields": {
+      "scenario": 1,
+      "node_id": "good_end",
+      "node_type": "result",
+      "text": "Пассажир успокоился и поблагодарил вас за помощь.",
+      "speaker": "NPC",
+      "time_limit": null
+    }
+  },
+  {
+    "model": "scenarios.scenarionode",
+    "pk": 4,
+    "fields": {
+      "scenario": 1,
+      "node_id": "neutral_end",
+      "node_type": "result",
+      "text": "Пассажир недоволен, но смирился.",
+      "speaker": "NPC",
+      "time_limit": null
+    }
+  },
+  {
+    "model": "scenarios.scenarionode",
+    "pk": 5,
+    "fields": {
+      "scenario": 1,
+      "node_id": "bad_end",
+      "node_type": "result",
+      "text": "Пассажир требует вызвать начальника поезда!",
+      "speaker": "NPC",
+      "time_limit": null
+    }
+  }
+]

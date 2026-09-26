@@ -1,3 +1,6 @@
+from django.shortcuts import render
+
+# Create your views here.
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -21,7 +24,7 @@ class RegisterView(generics.CreateAPIView):
         user = User.objects.create_user(username=username, password=password)
         refresh = RefreshToken.for_user(user)
         return Response({
-            'user': {'username': user.username},
+            'user': {'id': user.id, 'username': user.username},
             'access': str(refresh.access_token),
             'refresh': str(refresh)
         }, status=status.HTTP_201_CREATED)

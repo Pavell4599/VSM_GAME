@@ -16,6 +16,7 @@ class LeaderboardView(generics.ListAPIView):
             'rank': idx + 1,
             'username': user.username,
             'level': user.level,
-            'total_score': user.total_score
+            'total_score': user.total_score,
+            'scenarios_completed': user.scenarios_completed
         } for idx, user in enumerate(queryset)]
         return Response(data)

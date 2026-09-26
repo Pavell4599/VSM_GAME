@@ -1,52 +1,69 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style.css">
-    <title>Phaser - Template</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ВСМ-400: Тренировка проводников</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div id="app">
-        <div id="game-container"></div>
-    </div>
-    <script type="module" src="src/main.js"></script>
-    <!-- Модальное окно (скрыто по умолчанию) -->
+    <div id="game-container"></div>
+
+    <!-- Оверлей авторизации/профиля -->
     <div id="auth-overlay" class="overlay">
         <div class="modal">
             <button class="close-btn" onclick="closeOverlay()">×</button>
             
-            <!-- Форма регистрации -->
-            <div id="register-form">
-                <h2>Регистрация</h2>
-                <input type="text" id="reg-username" placeholder="Имя игрока">
-                <input type="password" id="reg-password" placeholder="Пароль">
-                <button onclick="handleRegister()">Зарегистрироваться</button>
-                <p>Уже есть аккаунт? <a href="#" onclick="toggleAuthMode()">Войти</a></p>
+            <div id="auth-tabs">
+                <button class="tab-btn active" onclick="showTab('login')">ВХОД</button>
+                <button class="tab-btn" onclick="showTab('register')">РЕГИСТРАЦИЯ</button>
             </div>
 
-            <!-- Страница профиля (скрыта до авторизации) -->
-            <div id="profile-view" style="display: none;">
-                <h2>Профиль игрока</h2>
-                <img id="profile-avatar" src="default-avatar.png" alt="Avatar" class="avatar">
+            <div id="login-form" class="auth-form">
+                <h2>Вход в систему</h2>
+                <input type="text" id="login-username" placeholder="Имя пользователя">
+                <input type="password" id="login-password" placeholder="Пароль">
+                <button onclick="handleLogin()">Войти</button>
+                <p id="login-error" class="error"></p>
+            </div>
+
+            <div id="register-form" class="auth-form" style="display:none;">
+                <h2>Регистрация проводника</h2>
+                <input type="text" id="reg-username" placeholder="Придумайте имя">
+                <input type="password" id="reg-password" placeholder="Придумайте пароль">
+                <button onclick="handleRegister()">Зарегистрироваться</button>
+                <p id="reg-error" class="error"></p>
+            </div>
+
+            <div id="profile-view" style="display:none;">
+                <h2>Профиль проводника</h2>
+                <img id="profile-avatar" src="" alt="Avatar" class="avatar">
                 <h3 id="profile-name">Имя</h3>
-                <p>Уровень: <span id="profile-level">1</span></p>
+                <div class="stats">
+                    <div class="stat"><span class="stat-label">Уровень:</span><span id="profile-level">1</span></div>
+                    <div class="stat"><span class="stat-label">Опыт:</span><span id="profile-xp">0</span> XP</div>
+                    <div class="stat"><span class="stat-label">Всего очков:</span><span id="profile-score">0</span></div>
+                    <div class="stat"><span class="stat-label">Сценариев пройдено:</span><span id="profile-scenarios">0</span></div>
+                    <div class="stat"><span class="stat-label">Навык лояльности:</span><span id="profile-loyalty">0</span></div>
+                    <div class="stat"><span class="stat-label">Навык безопасности:</span><span id="profile-safety">0</span></div>
+                </div>
                 
                 <div class="achievements">
-                    <h4>Достижения:</h4>
+                    <h4>🏆 Достижения:</h4>
                     <ul id="achievements-list"></ul>
                 </div>
 
                 <div class="tips">
-                    <h4>💡 Совет дня:</h4>
-                    <p id="daily-tip">Следите за расписанием вагонов, чтобы не потерять время!</p>
+                    <h4> Совет дня:</h4>
+                    <p id="daily-tip"></p>
                 </div>
                 
                 <button onclick="handleLogout()" class="danger-btn">Выйти</button>
             </div>
         </div>
     </div>
+
+    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/ui.js"></script>
 </body>
 </html>
