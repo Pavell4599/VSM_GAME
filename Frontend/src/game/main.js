@@ -9,8 +9,8 @@ import { AUTO, Game, Scale } from 'phaser';
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config = {
     type: AUTO,
-    width: 1024,
-    height: 768,
+    width: 1280,
+    height: 720,
     parent: 'game-container',
     backgroundColor: '#028af8',
     // --- ОБЯЗАТЕЛЬНО ДОБАВЬ ЭТОТ БЛОК ДЛЯ ТОП-ДАУН ДВИЖЕНИЯ ---
@@ -23,7 +23,8 @@ const config = {
     },
     // ---------------------------------------------------------
     scale: {
-        mode: Scale.FIT,
+        // Меняем FIT на ENVELOP, чтобы игра поглощала чёрные боковые зоны
+        mode: Scale.ENVELOP, 
         autoCenter: Scale.CENTER_BOTH
     },
     scene: [
