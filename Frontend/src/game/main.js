@@ -44,4 +44,3 @@ const StartGame = (parent) => {
 
 // Пишем строго дефолтный экспорт:
 export default StartGame;
-
