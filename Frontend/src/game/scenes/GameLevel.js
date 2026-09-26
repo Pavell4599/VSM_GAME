@@ -13,23 +13,34 @@ export class GameLevel extends Scene {
     }
 
     create() {
-        // 1. Ставим фон вагона по центру
+        // 1. Отрисовываем фон вагона
         this.add.image(400, 300, 'vagon_map');
 
-        // 2. ВОЗВРАЩАЕМ ИГРОКА: Создаем проводника
+        // 2. Создаем проводника
         this.player = this.physics.add.sprite(100, 300, 'player');
-        
-        // Масштабируем и настраиваем физику (подгони масштаб под размеры своей новой картинки)
         this.player.setScale(0.3);
         this.player.refreshBody();
         this.player.setCollideWorldBounds(true);
         this.player.setOrigin(0.5, 0.5);
         this.player.body.setAllowRotation(false);
 
-        // 3. ВОЗВРАЩАЕМ УПРАВЛЕНИЕ: Инициализируем клавиши
+        // 3. Инициализируем клавиши
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,A,S,D');
+
+        // === 🎯 КОД ДЛЯ ТОЧНОЙ РАЗМЕТКИ СИДЕНИЙ ===
+        // Слушаем клик мышки в любом месте игрового поля
+        this.input.on('pointerdown', (pointer) => {
+            // Округляем координаты до целых пикселей
+            const clickX = Math.round(pointer.x);
+            const clickY = Math.round(pointer.y);
+
+            // Выводим в консоль браузера (F12) готовый кусочек JSON!
+            console.log(`{ "seatId": "A1", "x": ${clickX}, "y": ${clickY} },`);
+        });
+        // =========================================
     }
+
 
     update() {
         // Проверяем, что игрок и клавиши созданы, прежде чем обрабатывать ввод
