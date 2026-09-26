@@ -93,32 +93,33 @@ export async function completeScenario(scenarioId, finalLoyalty, finalSafety, ch
     }
 }
 
-export async function aiChat(message, scenarioContext = '') {
+export async function aiChat(message, scenarioContext) {
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${API_URL}/ai/chat/`, {
+        const res = await fetch('http://127.0.0.1:8000/api/ai/chat/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({ message, scenario_context: scenarioContext })
         });
+        
         if (res.ok) {
             return await res.json();
         }
     } catch (error) {
-        console.warn('AI сервер недоступен, используем заглушку (stub)...');
+        console.warn('ИИ недоступен (503/Network Error). Активирую заглушку для демо...');
     }
 
-    // === ЗАГЛУШКА (STUB) ДЛЯ ДЕМОНСТРАЦИИ НА ХАКАТОНЕ ===
+    // ЖЕЛЕЗОБЕТОННАЯ ЗАГЛУШКА
     return new Promise(resolve => {
         setTimeout(() => {
             resolve({
-                response: `[ЗАГЛУШКА ИИ] Понял вас. Это тестовый ответ, так как модель Qwen пока не запущена локально. Но механика изменения шкал работает!`,
+                response: '[ДЕМО-РЕЖИМ] Понял вас! Модель Qwen сейчас не запущена на сервере, но этот ответ имитирует её работу. Шкалы обновляются!',
                 loyalty_change: 5,
                 safety_change: 2
             });
-        }, 1200);
+        }, 1000);
     });
 }

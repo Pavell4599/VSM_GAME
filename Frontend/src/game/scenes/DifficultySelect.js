@@ -1,13 +1,11 @@
 import { Scene } from 'phaser';
-import { getScenarios } from '../../api.js';
 
 export class DifficultySelect extends Scene {
     constructor() {
         super('DifficultySelect');
-        this.selectedDifficulty = null;
     }
 
-    async create() {
+    create() {
         const W = this.sys.game.config.width;
         const H = this.sys.game.config.height;
 
@@ -37,7 +35,6 @@ export class DifficultySelect extends Scene {
             btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#ffffff', color: diff.color }));
             btn.on('pointerout', () => btn.setStyle({ backgroundColor: diff.color, color: '#ffffff' }));
             btn.on('pointerdown', () => {
-                this.selectedDifficulty = diff.id;
                 this.showTimeSelect(diff);
             });
             yPos += 110;
@@ -48,23 +45,24 @@ export class DifficultySelect extends Scene {
         }).setOrigin(0.5).setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.scene.start('MainMenu'));
     }
-    
+
     showTimeSelect(difficulty) {
         const W = this.sys.game.config.width;
         const H = this.sys.game.config.height;
         
-        // Затемнение
         this.add.rectangle(0, 0, W, H, 0x000000, 0.7).setOrigin(0).setDepth(50);
         
-        this.add.text(W / 2, 150, `КЛАСС: ${difficulty.label}\nВЫБЕРИТЕ ДЛИТЕЛЬНОСТЬ СЕССИИ`, {
+        this.add.text(W / 2, 150, 'КЛАСС: ' + difficulty.label + '\nВЫБЕРИТЕ ДЛИТЕЛЬНОСТЬ СЕССИИ', {
             fontFamily: 'Arial Black', fontSize: 28, color: '#c9a961', align: 'center'
         }).setOrigin(0.5).setDepth(51);
         
+        // НОВЫЕ ВАРИАНТЫ ВРЕМЕНИ
         const times = [
-            { label: '3 МИНУТЫ', seconds: 180 },
             { label: '5 МИНУТ', seconds: 300 },
             { label: '10 МИНУТ', seconds: 600 },
-            { label: '15 МИНУТ', seconds: 900 }
+            { label: '15 МИНУТ', seconds: 900 },
+            { label: '20 МИНУТ', seconds: 1200 },
+            { label: '30 МИНУТ', seconds: 1800 }
         ];
         
         let yPos = 280;
@@ -79,7 +77,7 @@ export class DifficultySelect extends Scene {
             btn.on('pointerdown', () => {
                 this.scene.start('GameLevel', {
                     difficulty: difficulty.id,
-                    sessionTime: time.seconds
+                    sessionTime: time.seconds // Передаем выбранное время
                 });
             });
             yPos += 80;

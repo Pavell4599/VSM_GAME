@@ -12,6 +12,7 @@ const config = {
     height: 720,
     parent: 'game-container',
     backgroundColor: '#0a1628',
+    audio: { disableWebAudio: true }, // <-- ДОБАВИТЬ ЭТО
     physics: {
         default: 'arcade',
         arcade: { gravity: { y: 0 }, debug: false }
@@ -35,3 +36,5 @@ const StartGame = (parent) => {
 }
 
 export default StartGame;
+
+

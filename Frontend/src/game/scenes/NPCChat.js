@@ -18,9 +18,12 @@ export class NPCChat extends Scene {
     init(data) {
         this.npcName = data.npcName || 'Пассажир';
         this.scenarioContext = data.scenarioContext || '';
-        this.loyalty = data.loyalty ?? 70;
-        this.safety = data.safety ?? 70;
+        this.loyalty = data.loyalty !== undefined ? data.loyalty : 70;
+        this.safety = data.safety !== undefined ? data.safety : 70;
+        this.sessionTime = data.sessionTime !== undefined ? data.sessionTime : 300;  // <-- ДОБАВЬ ЭТУ СТРОКУ
+        this.difficulty = data.difficulty || 'standard';
         this.returnScene = data.returnScene || 'GameLevel';
+        // ... остальной код
     }
 
     create() {
@@ -215,11 +218,11 @@ export class NPCChat extends Scene {
         this.safetyBar.fillColor = this.safety < 30 ? 0xe74c3c : (this.safety < 60 ? 0xf39c12 : 0x3498db);
     }
 
-    finishChat() {
-        this.scene.start(this.returnScene, {
-            loyalty: this.loyalty,
-            safety: this.safety,
-            difficulty: 'standard' // Можно передать динамически, если нужно
-        });
-    }
-}
+finishChat() {
+    this.scene.start(this.returnScene, {
+        loyalty: this.loyalty,
+        safety: this.safety,
+        sessionTime: this.sessionTime,  // <-- ВОЗВРАЩАЕМ ВРЕМЯ!
+        difficulty: this.difficulty
+    });
+}}
