@@ -1,0 +1,18 @@
+.overlay {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center; align-items: center; z-index: 1000;
+}
+.modal {
+    background: #1a1a1a; color: white; padding: 30px; border-radius: 12px;
+    width: 400px; text-align: center; position: relative; border: 2px solid #00ffff;
+}
+.modal input {
+    width: 90%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white;
+}
+.modal button {
+    padding: 10px 20px; background: #00ffff; color: black; border: none; cursor: pointer; font-weight: bold;
+}
+.close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+.avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffd700; }

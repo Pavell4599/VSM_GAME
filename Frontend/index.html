@@ -13,5 +13,40 @@
         <div id="game-container"></div>
     </div>
     <script type="module" src="src/main.js"></script>
+    <!-- Модальное окно (скрыто по умолчанию) -->
+    <div id="auth-overlay" class="overlay">
+        <div class="modal">
+            <button class="close-btn" onclick="closeOverlay()">×</button>
+            
+            <!-- Форма регистрации -->
+            <div id="register-form">
+                <h2>Регистрация</h2>
+                <input type="text" id="reg-username" placeholder="Имя игрока">
+                <input type="password" id="reg-password" placeholder="Пароль">
+                <button onclick="handleRegister()">Зарегистрироваться</button>
+                <p>Уже есть аккаунт? <a href="#" onclick="toggleAuthMode()">Войти</a></p>
+            </div>
+
+            <!-- Страница профиля (скрыта до авторизации) -->
+            <div id="profile-view" style="display: none;">
+                <h2>Профиль игрока</h2>
+                <img id="profile-avatar" src="default-avatar.png" alt="Avatar" class="avatar">
+                <h3 id="profile-name">Имя</h3>
+                <p>Уровень: <span id="profile-level">1</span></p>
+                
+                <div class="achievements">
+                    <h4>Достижения:</h4>
+                    <ul id="achievements-list"></ul>
+                </div>
+
+                <div class="tips">
+                    <h4>💡 Совет дня:</h4>
+                    <p id="daily-tip">Следите за расписанием вагонов, чтобы не потерять время!</p>
+                </div>
+                
+                <button onclick="handleLogout()" class="danger-btn">Выйти</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 import { GameLevel } from './scenes/GameLevel';
 import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
+import { DifficultySelect } from './scenes/DifficultySelect';
 import { Preloader } from './scenes/Preloader';
 import { AUTO, Game, Scale } from 'phaser';
 
@@ -32,6 +33,7 @@ const config = {
         Boot,
         Preloader,
         MainMenu,
+        DifficultySelect,
     ]
 };
 
