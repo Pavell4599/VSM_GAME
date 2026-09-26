@@ -1,0 +1,30 @@
+{
+    "totalLevels": 4,
+    "levels": [
+      {
+        "id": "standard",
+        "vagonName": "Вагон класса Стандарт",
+        "isUnlocked": true,
+        "configFile": "assets/jsons/vagon_standard.json"
+      },
+      {
+        "id": "comfort",
+        "vagonName": "Вагон класса Комфорт",
+        "isUnlocked": false,
+        "configFile": "assets/jsons/comfort.json"
+      },
+      {
+        "id": "business",
+        "vagonName": "Вагон класса Бизнес",
+        "isUnlocked": false,
+        "configFile": "assets/jsons/business.json"
+      },
+      {
+        "id": "first",
+        "vagonName": "Вагон Первого класса",
+        "isUnlocked": false,
+        "configFile": "assets/jsons/first.json"
+      }
+    ]
+  }
+  
