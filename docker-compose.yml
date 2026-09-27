@@ -1,26 +1,72 @@
-version: '3.8'
-
 services:
-  # Сервер бэкенда (Django)
   backend:
     build:
       context: ./Backend
+      dockerfile: Dockerfile
+    container_name: vsm-backend
     ports:
       - "8000:8000"
     volumes:
       - ./Backend:/app
+      - /app/__pycache__
     environment:
       - PYTHONUNBUFFERED=1
-      # Здесь можно указать настройки подключения к БД, если используете не SQLite
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=config.settings
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    develop:
+      watch:
+        - action: sync
+          path: ./Backend
+          target: /app
+          ignore:
+            - node_modules
+            - __pycache__
+            - "*.pyc"
 
-  # Сервер фронтенда (React/Vue/Vite)
   frontend:
     build:
       context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: vsm-frontend
     ports:
-      - "5173:5173"
+      - "8080:8080"
     volumes:
       - ./Frontend:/app
       - /app/node_modules
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    environment:
+      - VITE_API_URL=http://backend:8000
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: ./Frontend
+          target: /app
+          ignore:
+            - node_modules
+            - dist
+
+  # Optional: AI model service (for vLLM if needed)
+  # ai-model:
+  #   image: vllm/vllm-openai:latest
+  #   container_name: vsm-ai-model
+  #   ports:
+  #     - "8001:8000"
+  #   volumes:
+  #     - model_cache:/root/.cache
+  #   environment:
+  #     - VLLM_HOST=0.0.0.0
+  #     - VLLM_PORT=8000
+  #   command: --model LadiesMan69/Qwen2.5-NPC-passenger --gpu-memory-utilization 0.5
+
+# volumes:
+#   model_cache:

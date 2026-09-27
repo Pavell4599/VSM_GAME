@@ -1,20 +1,15 @@
-# Используем официальный образ Node.js
 FROM node:20-alpine
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем конфигурационные файлы npm
+# Install dependencies first for better caching
 COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
 
-# Устанавливаем зависимости
-RUN npm install
-
-# Копируем весь код фронтенда
+# Copy application code
 COPY . .
 
-# Открываем порт Vite (по умолчанию 5173)
-EXPOSE 5173
+# Build the app for development with Vite
+EXPOSE 8080
 
-# Запускаем Vite с флагом --host, чтобы контейнер отвечал на внешние запросы
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "run", "dev"]

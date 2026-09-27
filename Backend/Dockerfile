@@ -1,23 +1,33 @@
-# Используем легковесный образ Python
-FROM python:3.11-slim
+# Multi-stage build for optimized production image
+FROM python:3.11-slim as builder
 
-# Устанавливаем системные зависимости (опционально, если нужны для сборки некоторых пакетов)
+WORKDIR /app
+
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем рабочую директорию внутри контейнера
+# Copy and install requirements
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Final stage
+FROM python:3.11-slim
+
 WORKDIR /app
 
-# Копируем и устанавливаем зависимости
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy Python dependencies from builder
+COPY --from=builder /root/.local /root/.local
 
-# Копируем весь код бэкенда в контейнер
+# Set PATH to use user-installed packages
+ENV PATH=/root/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Copy application code
 COPY . .
 
-# Открываем порт, который использует Django по умолчанию
 EXPOSE 8000
 
-# Команда для применения миграций и запуска сервера
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py loaddata data_fixtures.json && python manage.py runserver 0.0.0.0:8000"]
