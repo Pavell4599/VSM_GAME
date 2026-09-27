@@ -1,31 +1,29 @@
-БЭКЭНД
+# Запуск проекта локально
 cd Backend
-
-# Создаём виртуальное окружение
 python -m venv venv
-
-# Активируем (Windows)
-venv\Scripts\activate
-# Или (macOS/Linux)
-source venv/bin/activate
-
-# Устанавливаем зависимости
+# Powershell
+venv\Scripts\activate 
+# Bash
+source venv/bin/activate 
 pip install -r requirements.txt
-
-# Применяем миграции БД
 python manage.py migrate
-
-# Запускаем сервер
 python manage.py runserver
-
-
-ФРОНТЕНД
 cd Frontend
-
-# Устанавливаем зависимости
 npm install
-
-# Запускаем dev-сервер
 npm run dev
+
+После успешного запуска:
+- **Фронтенд**: http://localhost:5173
+- **Бэкенд (API)**: http://localhost:8000
+
+
+
+
+## Запуск проекта через Docker
+docker-compose up --build
+
+После успешного запуска:
+- **Фронтенд**: http://localhost:5173
+- **Бэкенд (API)**: http://localhost:8000
 
 

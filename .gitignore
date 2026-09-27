@@ -32,4 +32,6 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# Базы данных и виртуальные окружения
 venv/
+*.sqlite3
