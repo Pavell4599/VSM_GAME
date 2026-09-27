@@ -116,6 +116,8 @@ export class GameLevel extends Scene {
         this.createNPCsFromJSON(vagonScaledWidth, vagonTopY, vagonHeight);
         this.scheduleNextRandomEvent();
 
+        this.createMobileControls();
+
         // Сканер координат для отладки
         this.input.on('pointerdown', (pointer) => {
             console.log(`{ "x": ${Math.round(pointer.worldX)}, "y": ${Math.round(pointer.worldY)} },`);
@@ -402,7 +404,7 @@ export class GameLevel extends Scene {
         });
     }
 
-    update() {
+        update() {
         if (this.scene.isActive('NPCChat') || this.scene.isActive('Debriefing')) return;
         if (!this.player || !this.cursors || !this.wasd) return;
 
@@ -410,13 +412,39 @@ export class GameLevel extends Scene {
         const SPEED = 300;
         let velocityX = 0, velocityY = 0;
 
-        if (this.cursors.left.isDown || this.wasd.A.isDown) velocityX = -SPEED;
-        else if (this.cursors.right.isDown || this.wasd.D.isDown) velocityX = SPEED;
-        if (this.cursors.up.isDown || this.wasd.W.isDown) velocityY = -SPEED;
-        else if (this.cursors.down.isDown || this.wasd.S.isDown) velocityY = SPEED;
+        // Проверка клавиатуры
+        const isLeft = this.cursors.left.isDown || this.wasd.A.isDown;
+        const isRight = this.cursors.right.isDown || this.wasd.D.isDown;
+        const isUp = this.cursors.up.isDown || this.wasd.W.isDown;
+        const isDown = this.cursors.down.isDown || this.wasd.S.isDown;
+
+        // ✅ Проверка мобильных кнопок (если они созданы)
+        if (this.mobileInput) {
+            if (this.mobileInput.left) velocityX = -SPEED;
+            else if (this.mobileInput.right) velocityX = SPEED;
+            
+            if (this.mobileInput.up) velocityY = -SPEED;
+            else if (this.mobileInput.down) velocityY = SPEED;
+        } 
+        // Если мобильные кнопки не нажаты, проверяем клавиатуру
+        else {
+            if (isLeft) velocityX = -SPEED;
+            else if (isRight) velocityX = SPEED;
+            if (isUp) velocityY = -SPEED;
+            else if (isDown) velocityY = SPEED;
+        }
+        
+        // Если нажато и то, и другое, приоритет у клавиатуры (или можно объединить через ||)
+        // Более простой вариант объединения:
+        if (isLeft || this.mobileInput?.left) velocityX = -SPEED;
+        else if (isRight || this.mobileInput?.right) velocityX = SPEED;
+        
+        if (isUp || this.mobileInput?.up) velocityY = -SPEED;
+        else if (isDown || this.mobileInput?.down) velocityY = SPEED;
 
         this.player.setVelocityX(velocityX);
         this.player.setVelocityY(velocityY);
+        
         if (velocityX !== 0 || velocityY !== 0) {
             this.player.rotation = PhaserMath.Angle.Between(0, 0, velocityX, velocityY);
         }
@@ -502,5 +530,65 @@ export class GameLevel extends Scene {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    createMobileControls() {
+        const screenWidth = this.sys.game.config.width;
+        const screenHeight = this.sys.game.config.height;
+        
+        // Настройки кнопок
+        const btnSize = 60;
+        const gap = 10;
+        const padding = 20;
+        
+        // Позиция блока кнопок (правый нижний угол)
+        const startX = screenWidth - btnSize * 2 - gap - padding;
+        const startY = screenHeight - btnSize * 2 - gap - padding;
+
+        // Функция создания одной кнопки
+        const createBtn = (x, y, label, key) => {
+            // Фон кнопки (полупрозрачный белый круг)
+            const btn = this.add.circle(x, y, btnSize / 2, 0xffffff, 0.3)
+                .setStrokeStyle(2, 0xffffff, 0.8)
+                .setInteractive({ useHandCursor: true })
+                .setScrollFactor(0) // Чтобы кнопки не двигались вместе с камерой
+                .setDepth(100);     // Поверх всего
+
+            // Текст стрелки
+            this.add.text(x, y, label, {
+                fontFamily: 'Arial',
+                fontSize: '24px',
+                color: '#ffffff'
+            }).setOrigin(0.5).setScrollFactor(0).setDepth(101);
+
+            // Логика нажатия
+            btn.on('pointerdown', () => {
+                this.mobileInput[key] = true;
+                btn.setFillStyle(0xe63946, 0.6); // Подсветка при нажатии
+            });
+
+            btn.on('pointerup', () => {
+                this.mobileInput[key] = false;
+                btn.setFillStyle(0xffffff, 0.3); // Возврат цвета
+            });
+            
+            btn.on('pointerout', () => {
+                this.mobileInput[key] = false;
+                btn.setFillStyle(0xffffff, 0.3);
+            });
+        };
+
+        // Инициализируем объект для хранения состояния кнопок
+        this.mobileInput = { up: false, down: false, left: false, right: false };
+
+        // Создаем кнопки в форме крестовины
+        //       [UP]
+        // [LEFT]    [RIGHT]
+        //      [DOWN]
+        
+        createBtn(startX + btnSize/2 + gap/2, startY, '▲', 'up');             // Вверх
+        createBtn(startX + btnSize/2 + gap/2, startY + btnSize + gap, '▼', 'down'); // Вниз
+        createBtn(startX, startY + btnSize/2 + gap/2, '◀', 'left');           // Влево
+        createBtn(startX + btnSize + gap, startY + btnSize/2 + gap/2, '▶', 'right'); // Вправо
     }
 }
