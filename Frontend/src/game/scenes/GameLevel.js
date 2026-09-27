@@ -20,27 +20,21 @@ export class GameLevel extends Scene {
         this.difficulty = data.difficulty || 'standard';
     }
     preload() {
-        // 1. Базовые ассеты
-        this.load.image('player', 'assets/sprites&bg/players/player.png');
-        this.load.image('npc_default', 'assets/sprites&bg/players/player.png');
-        this.load.image('bg_ground', 'assets/sprites&bg/bgs/ground.png');
-
-        // 2. Спрайты архетипов (если есть)
-        if (typeof ARCHETYPES !== 'undefined') {
-            ARCHETYPES.forEach(arch => {
-                if (arch.sprite) {
-                    this.load.image(`npc_${arch.id}`, arch.sprite);
-                }
-            });
+        // Мы НЕ загружаем здесь спрайты NPC снова, так как они уже загружены в Preloader.
+        // Загружаем только специфичные для уровня вещи, если они есть.
+        
+        // 1. Базовые ассеты (если они не были загружены в Preloader или нужны другие версии)
+        if (!this.textures.exists('player')) {
+             this.load.image('player', 'assets/sprites&bg/players/player.png');
         }
-
-        // 3. ПРЕДЗАГРУЗКА ВСЕХ ВАГОНОВ (чтобы избежать асинхронных ошибок в create)
+        
+        // 2. Вагоны
         this.load.image('vagon_standard', 'assets/sprites&bg/vagons/standart.png');
         this.load.image('vagon_comfort', 'assets/sprites&bg/vagons/comfort.png');
         this.load.image('vagon_business', 'assets/sprites&bg/vagons/business.png');
         this.load.image('vagon_first', 'assets/sprites&bg/vagons/first.png');
 
-        // 4. Загрузка JSON конфигурации уровня
+        // 3. JSON конфигурации
         const fileNameMap = {
             'standard': 'standart.json',
             'comfort': 'comfort.json',
@@ -309,9 +303,12 @@ export class GameLevel extends Scene {
             const archetype = getRandomArchetype();
             const passengerName = getRandomName(archetype.id);
             
-            // ✅ УМНАЯ ПОДГРУЗКА СПРАЙТА: проверяем, есть ли картинка для архетипа
+            //✅ УМНАЯ ПОДГРУЗКА СПРАЙТА: проверяем, есть ли картинка для архетипа
             const spriteKey = `npc_${archetype.id}`;
             const finalSprite = this.textures.exists(spriteKey) ? spriteKey : 'npc';
+            //const finalSprite = 'npc_business'; // Жёстко задаём ключ для теста
+            //console.log('🎯 Пытаемся использовать ключ текстуры:', finalSprite);
+            //console.log('✅ Существует ли эта текстура в Phaser?', this.textures.exists(finalSprite));
             
             console.log(` 👤 NPC ${idx}: ${passengerName} (${archetype.name}) на месте ${seat.id} (Спрайт: ${finalSprite})`);
             

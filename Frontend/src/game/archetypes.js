@@ -3,7 +3,7 @@ export const ARCHETYPES = [
     {
         id: 'business',
         name: 'Бизнес-турист',
-        sprite: 'assets/sprites&bg/npcs/business.png',
+        sprite: '/assets/sprites&bg/npcs/business.png',
         description: 'Предприниматель или топ-менеджер. Ценит время, требователен, не любит ждать.',
         traits: { patience: 30, demanding: 90, aggression: 40, politeness: 70 },
         phrases: [
@@ -16,7 +16,7 @@ export const ARCHETYPES = [
     {
         id: 'veteran',
         name: 'Ветеран СВО',
-        sprite: 'assets/sprites&bg/npcs/veteran.png',
+        sprite: '/assets/sprites&bg/npcs/veteran.png',
         description: 'Военнослужащий. Сдержан, уважает дисциплину, четкость и субординацию.',
         traits: { patience: 60, demanding: 50, aggression: 30, politeness: 80 },
         phrases: [
@@ -29,7 +29,7 @@ export const ARCHETYPES = [
     {
         id: 'student',
         name: 'Студент',
-        sprite: 'assets/sprites&bg/npcs/student.png',
+        sprite: '/assets/sprites&bg/npcs/student.png',
         description: 'Молодёжь или цифровой кочевник. Расслаблен, может быть шумным, но обычно не конфликтен.',
         traits: { patience: 70, demanding: 30, aggression: 20, politeness: 60 },
         phrases: [
@@ -42,7 +42,7 @@ export const ARCHETYPES = [
     {
         id: 'family',
         name: 'Семья с детьми',
-        sprite: 'assets/sprites&bg/npcs/family.png',
+        sprite: '/assets/sprites&bg/npcs/family.png',
         description: 'Отпускники или многодетные родители. Нуждаются в помощи, внимании и терпении.',
         traits: { patience: 50, demanding: 70, aggression: 20, politeness: 80 },
         phrases: [
@@ -55,7 +55,7 @@ export const ARCHETYPES = [
     {
         id: 'senior',
         name: 'Пенсионер',
-        sprite: 'assets/sprites&bg/npcs/senior.png',
+        sprite: '/assets/sprites&bg/npcs/senior.png',
         description: 'Пожилой человек или дачник. Медлителен, нуждается в заботе и уважении.',
         traits: { patience: 80, demanding: 40, aggression: 10, politeness: 90 },
         phrases: [
@@ -68,7 +68,7 @@ export const ARCHETYPES = [
     {
         id: 'foreigner',
         name: 'Иностранный турист',
-        sprite: 'assets/sprites&bg/npcs/foreigner.png',
+        sprite: '/assets/sprites&bg/npcs/foreigner.png',
         description: 'Не знает языка, может быть дезориентирован или напуган.',
         traits: { patience: 60, demanding: 50, aggression: 10, politeness: 70 },
         phrases: [
@@ -81,7 +81,7 @@ export const ARCHETYPES = [
     {
         id: 'worker',
         name: 'Вахтовик',
-        sprite: 'assets/sprites&bg/npcs/worker.png',
+        sprite: '/assets/sprites&bg/npcs/worker.png',
         description: 'Рабочий или строитель. Уставший после смены, может быть резким и прямым.',
         traits: { patience: 40, demanding: 60, aggression: 50, politeness: 40 },
         phrases: [
@@ -94,7 +94,7 @@ export const ARCHETYPES = [
     {
         id: 'railway',
         name: 'Железнодорожник',
-        sprite: 'assets/sprites&bg/npcs/railway.png',
+        sprite: '/assets/sprites&bg/npcs/railway.png',
         description: 'Инспектор или сменный проводник. Знает все регламенты и любит делать замечания.',
         traits: { patience: 70, demanding: 80, aggression: 20, politeness: 70 },
         phrases: [
