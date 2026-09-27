@@ -404,7 +404,7 @@ export class GameLevel extends Scene {
         });
     }
 
-        update() {
+    update() {
         if (this.scene.isActive('NPCChat') || this.scene.isActive('Debriefing')) return;
         if (!this.player || !this.cursors || !this.wasd) return;
 
