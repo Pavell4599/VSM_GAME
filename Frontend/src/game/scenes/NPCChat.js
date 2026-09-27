@@ -21,6 +21,7 @@ export class NPCChat extends Scene {
 
     init(data) {
         this.npcName = data.npcName || 'Пассажир';
+        this.npcArchetype = data.npcArchetype || null;
         this.scenarioContext = data.scenarioContext || '';
         this.startLoyalty = data.loyalty !== undefined ? data.loyalty : 70;
         this.startSafety = data.safety !== undefined ? data.safety : 70;
@@ -70,7 +71,7 @@ export class NPCChat extends Scene {
 
         // === ШКАЛЫ В ШАПКЕ ===
         const scaleX = chatX + chatW - 240;
-        
+
         this.add.text(scaleX, chatY + 20, 'ЛОЯЛЬНОСТЬ', {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '10px',
@@ -117,25 +118,26 @@ export class NPCChat extends Scene {
         closeBtn.on('pointerout', () => closeBtn.setFillStyle(0xe0e0e0));
         closeBtn.on('pointerdown', () => this.finishChat());
 
-        // === ОБЛАСТЬ СООБЩЕНИЙ ===
+        // === ОБЛАСТЬ СООБЩЕНИЙ С ИДЕАЛЬНОЙ МАСКОЙ ===
         const msgAreaX = chatX + 20;
         const msgAreaY = chatY + 70;
         const msgAreaW = chatW - 40;
-        const msgAreaH = chatH - 150;
+        this.maxChatHeight = chatH - 150;
 
         // Фон области сообщений
-        this.add.rectangle(msgAreaX, msgAreaY, msgAreaW, msgAreaH, 0xf8f8f8)
+        this.add.rectangle(msgAreaX, msgAreaY, msgAreaW, this.maxChatHeight, 0xf8f8f8)
             .setOrigin(0, 0).setDepth(101);
 
-        // === МАСКА ДЛЯ ОБРЕЗКИ СООБЩЕНИЙ ===
+        // Геометрическая маска (обрезает всё, что выходит за рамки)
         const maskGraphics = this.make.graphics({ x: 0, y: 0, add: false });
         maskGraphics.fillStyle(0xffffff);
-        maskGraphics.fillRect(msgAreaX, msgAreaY, msgAreaW, msgAreaH);
-        const mask = maskGraphics.createGeometryMask();
+        maskGraphics.fillRect(msgAreaX, msgAreaY, msgAreaW, this.maxChatHeight);
+        const chatMask = maskGraphics.createGeometryMask();
 
-        // Контейнер сообщений
+        // Контейнер сообщений с маской
         this.messagesContainer = this.add.container(msgAreaX, msgAreaY).setDepth(102);
-        this.messagesContainer.setMask(mask);
+        this.messagesContainer.setMask(chatMask);
+        this.messagesY = 0;
 
         // === ПОЛЕ ВВОДА ===
         const inputY = chatY + chatH - 55;
@@ -144,7 +146,7 @@ export class NPCChat extends Scene {
         this.add.rectangle(chatX + 20, inputY, inputWidth, 42, 0xffffff)
             .setOrigin(0, 0.5).setDepth(102).setStrokeStyle(1, 0xe0e0e0);
 
-        this.inputDisplay = this.add.text(chatX + 35, inputY, 'Нажмите Enter или  для голосового ввода...', {
+        this.inputDisplay = this.add.text(chatX + 35, inputY, 'Нажмите Enter или 🎤 для голосового ввода...', {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '14px',
             color: '#999999'
@@ -154,7 +156,7 @@ export class NPCChat extends Scene {
             .setOrigin(0, 0.5).setInteractive({ useHandCursor: true }).setDepth(104);
         inputZone.on('pointerdown', () => this.activateInput());
 
-        // === КНОПКА МИКРОФОНА (ВСЕГДА ВИДНА, ВЫСОКИЙ DEPTH) ===
+        // === КНОПКА МИКРОФОНА (высокий depth, всегда видна) ===
         this.micBtn = this.add.rectangle(chatX + chatW - 85, inputY, 42, 42, 0xffffff)
             .setOrigin(0.5).setStrokeStyle(1, 0xe0e0e0).setInteractive({ useHandCursor: true }).setDepth(110);
         this.micIcon = this.add.text(chatX + chatW - 85, inputY, '🎤', {
@@ -165,7 +167,7 @@ export class NPCChat extends Scene {
         this.micBtn.on('pointerout', () => this.micBtn.setStrokeStyle(1, 0xe0e0e0));
         this.micBtn.on('pointerdown', () => this.toggleVoiceInput());
 
-        // === КНОПКА ОТПРАВКИ (ВСЕГДА ВИДНА, ВЫСОКИЙ DEPTH) ===
+        // === КНОПКА ОТПРАВКИ (высокий depth, всегда видна) ===
         const sendBtn = this.add.rectangle(chatX + chatW - 35, inputY, 42, 42, 0xe63946)
             .setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(110);
         this.add.text(chatX + chatW - 35, inputY, '▶', {
@@ -180,20 +182,21 @@ export class NPCChat extends Scene {
         // === ПРОКРУТКА КОЛЁСИКОМ МЫШИ ===
         this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
             if (pointer.x >= msgAreaX && pointer.x <= msgAreaX + msgAreaW &&
-                pointer.y >= msgAreaY && pointer.y <= msgAreaY + msgAreaH) {
-                this.messagesContainer.y -= deltaY * 0.5;
+                pointer.y >= msgAreaY && pointer.y <= msgAreaY + this.maxChatHeight) {
+                this.messagesContainer.y -= deltaY * 0.8;
                 this.clampScroll();
             }
         });
 
         // === ПРОКРУТКА ПЕРЕТАСКИВАНИЕМ (DRAG) ===
-        const dragZone = this.add.zone(msgAreaX, msgAreaY, msgAreaW, msgAreaH)
+        const dragZone = this.add.zone(msgAreaX, msgAreaY, msgAreaW, this.maxChatHeight)
             .setOrigin(0, 0).setInteractive({ useHandCursor: true }).setDepth(105);
-        
+
         dragZone.on('pointerdown', (pointer) => {
             this.isDragging = true;
             this.dragStartY = pointer.y;
             this.containerStartY = this.messagesContainer.y;
+            this.tweens.killTweensOf(this.messagesContainer);
         });
 
         this.input.on('pointermove', (pointer) => {
@@ -232,17 +235,6 @@ export class NPCChat extends Scene {
         });
     }
 
-    // Ограничение прокрутки (не даём уехать слишком далеко)
-    clampScroll() {
-        const maxScroll = 0;
-        const minScroll = -(this.messagesY - this.maxChatHeight);
-        if (this.messagesContainer.y > maxScroll) {
-            this.messagesContainer.y = maxScroll;
-        } else if (this.messagesContainer.y < minScroll) {
-            this.messagesContainer.y = minScroll;
-        }
-    }
-
     initVoiceRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
@@ -270,7 +262,7 @@ export class NPCChat extends Scene {
                 console.warn('Голосовой ввод ошибка:', event.error);
                 this.isListening = false;
                 this.micBtn.setFillStyle(0xffffff);
-                this.micIcon.setText('🎤');
+                this.micIcon.setText('');
             };
         }
     }
@@ -320,7 +312,7 @@ export class NPCChat extends Scene {
             this.inputDisplay.setText((this.currentInput || '') + ' слушает...');
             this.inputDisplay.setColor('#e63946');
         } else {
-            this.inputDisplay.setText('Нажмите Enter или 🎤 для голосового ввода...');
+            this.inputDisplay.setText('Нажмите Enter или  для голосового ввода...');
             this.inputDisplay.setColor('#999999');
         }
     }
@@ -335,10 +327,10 @@ export class NPCChat extends Scene {
     addNPCMessage(text) {
         const msgW = 420;
         const msgH = 65;
-        
+
         const bubble = this.add.rectangle(0, this.messagesY, msgW, msgH, 0xf0f0f0)
             .setOrigin(0, 0).setStrokeStyle(1, 0xe0e0e0);
-        
+
         const msgText = this.add.text(15, this.messagesY + 12, text, {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '14px',
@@ -346,14 +338,14 @@ export class NPCChat extends Scene {
             wordWrap: { width: msgW - 30 },
             lineSpacing: 3
         }).setOrigin(0, 0);
-        
+
         const nameText = this.add.text(15, this.messagesY + msgH + 4, this.npcName, {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '10px',
             color: '#999999',
             fontWeight: '600'
         }).setOrigin(0, 0);
-        
+
         this.messagesContainer.add([bubble, msgText, nameText]);
         this.messagesY += msgH + 20;
         this.scrollToBottom();
@@ -363,10 +355,10 @@ export class NPCChat extends Scene {
         const msgW = 420;
         const msgH = 65;
         const offsetX = 280;
-        
+
         const bubble = this.add.rectangle(offsetX, this.messagesY, msgW, msgH, 0xe63946)
             .setOrigin(0, 0);
-        
+
         const msgText = this.add.text(offsetX + 15, this.messagesY + 12, text, {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '14px',
@@ -374,14 +366,14 @@ export class NPCChat extends Scene {
             wordWrap: { width: msgW - 30 },
             lineSpacing: 3
         }).setOrigin(0, 0);
-        
+
         const nameText = this.add.text(offsetX + msgW - 30, this.messagesY + msgH + 4, 'Вы', {
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '10px',
             color: '#999999',
             fontWeight: '600'
         }).setOrigin(0, 0);
-        
+
         this.messagesContainer.add([bubble, msgText, nameText]);
         this.messagesY += msgH + 20;
         this.scrollToBottom();
@@ -400,10 +392,28 @@ export class NPCChat extends Scene {
         return typing;
     }
 
-    // Автоматическая прокрутка вниз при новом сообщении
+    // Плавная автоматическая прокрутка вниз
     scrollToBottom() {
         if (this.messagesY > this.maxChatHeight) {
-            this.messagesContainer.y = -(this.messagesY - this.maxChatHeight);
+            const targetY = -(this.messagesY - this.maxChatHeight);
+            this.tweens.killTweensOf(this.messagesContainer);
+            this.tweens.add({
+                targets: this.messagesContainer,
+                y: targetY,
+                duration: 250,
+                ease: 'Power2'
+            });
+        }
+    }
+
+    // Жёсткое ограничение прокрутки
+    clampScroll() {
+        const maxScroll = 0;
+        const minScroll = -(this.messagesY - this.maxChatHeight);
+        if (this.messagesContainer.y > maxScroll) {
+            this.messagesContainer.y = maxScroll;
+        } else if (this.messagesContainer.y < minScroll) {
+            this.messagesContainer.y = minScroll;
         }
     }
 

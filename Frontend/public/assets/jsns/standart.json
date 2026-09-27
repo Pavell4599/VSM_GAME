@@ -1,0 +1,53 @@
+{
+  "levelId": "standard",
+  "levelName": "СТАНДАРТ",
+  "description": "Базовые ситуации. Идеально для новичков.",
+  "requiredLevel": 1,
+  "difficulty": "easy",
+  
+  "visuals": {
+    "vagonImage": "assets/sprites&bg/vagons/comfort.png",
+    "backgroundImage": "assets/sprites&bg/bgs/ground.png",
+    "vagonScale": 0.80,
+    "vagonOffsetY": 0
+  },
+  
+  "seats": [
+    { "id": "1A", "x": 3600, "y": 155, "row": 1, "type": "window", "defaultOccupant": "business" },
+    { "id": "1B", "x": 3600, "y": 265, "row": 1, "type": "aisle", "defaultOccupant": "business" },
+    { "id": "1C", "x": 3600, "y": 450, "row": 1, "type": "aisle", "defaultOccupant": "family" },
+    { "id": "1D", "x": 3600, "y": 555, "row": 1, "type": "window", "defaultOccupant": "family" },
+
+    { "id": "2A", "x": 3450, "y": 155, "row": 2, "type": "window", "defaultOccupant": "veteran" },
+    { "id": "2B", "x": 3450, "y": 265, "row": 2, "type": "aisle", "defaultOccupant": "veteran" },
+    { "id": "2C", "x": 3450, "y": 450, "row": 2, "type": "aisle", "defaultOccupant": "student" },
+    { "id": "2D", "x": 3450, "y": 555, "row": 2, "type": "window", "defaultOccupant": "student" },
+
+    { "id": "3A", "x": 3300, "y": 155, "row": 3, "type": "window", "defaultOccupant": "senior" },
+    { "id": "3B", "x": 3300, "y": 265, "row": 3, "type": "aisle", "defaultOccupant": "senior" },
+    { "id": "3C", "x": 3300, "y": 450, "row": 3, "type": "aisle", "defaultOccupant": "worker" },
+    { "id": "3D", "x": 3300, "y": 555, "row": 3, "type": "window", "defaultOccupant": "worker" },
+
+    { "id": "4A", "x": 3150, "y": 155, "row": 4, "type": "window", "defaultOccupant": "foreigner" },
+    { "id": "4B", "x": 3150, "y": 265, "row": 4, "type": "aisle", "defaultOccupant": "foreigner" },
+    { "id": "4C", "x": 3150, "y": 450, "row": 4, "type": "aisle", "defaultOccupant": "railway" },
+    { "id": "4D", "x": 3150, "y": 555, "row": 4, "type": "window", "defaultOccupant": "railway" },
+
+    { "id": "5A", "x": 3000, "y": 155, "row": 5, "type": "window", "defaultOccupant": "business" },
+    { "id": "5B", "x": 3000, "y": 265, "row": 5, "type": "aisle", "defaultOccupant": "business" },
+    { "id": "5C", "x": 3000, "y": 450, "row": 5, "type": "aisle", "defaultOccupant": "family" },
+    { "id": "5D", "x": 3000, "y": 555, "row": 5, "type": "window", "defaultOccupant": "family" },
+
+    { "id": "6A", "x": 2850, "y": 155, "row": 6, "type": "window", "defaultOccupant": "veteran" },
+    { "id": "6B", "x": 2850, "y": 265, "row": 6, "type": "aisle", "defaultOccupant": "veteran" },
+    { "id": "6C", "x": 2850, "y": 450, "row": 6, "type": "aisle", "defaultOccupant": "student" },
+    { "id": "6D", "x": 2850, "y": 555, "row": 6, "type": "window", "defaultOccupant": "student" }
+  ],
+  
+  "gameplay": {
+    "defaultSessionTime": 300,
+    "maxPassengers": 24,
+    "startingLoyalty": 100,
+    "startingSafety": 100
+  }
+}

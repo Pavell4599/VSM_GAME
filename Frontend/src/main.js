@@ -77,12 +77,40 @@ window.renderDifficulty = function() {
     const grid = document.getElementById('difficulty-grid');
     
     const difficulties = [
-        { id: 'standard', label: 'СТАНДАРТ', desc: 'Базовые ситуации', color: '#3498db', requiredLevel: 1 },
-        { id: 'comfort', label: 'КОМФОРТ', desc: 'Повышенные требования', color: '#2ecc71', requiredLevel: 3 },
-        { id: 'business', label: 'БИЗНЕС', desc: 'Сложные конфликты', color: '#f39c12', requiredLevel: 5 },
-        { id: 'first', label: 'ПЕРВЫЙ КЛАСС', desc: 'Максимальный стресс', color: '#e63946', requiredLevel: 8 }
+        { 
+            id: 'standard', 
+            label: 'СТАНДАРТ', 
+            desc: 'Базовые ситуации. Идеально для новичков.', 
+            color: '#3498db', 
+            requiredLevel: 1,
+            unlocked: true  // ✅ ВСЕГДА ОТКРЫТ
+        },
+        { 
+            id: 'comfort', 
+            label: 'КОМФОРТ', 
+            desc: 'Повышенные требования. Более сложные пассажиры.', 
+            color: '#2ecc71', 
+            requiredLevel: 15,  // 🔒 Высокий порог
+            unlocked: false
+        },
+        { 
+            id: 'business', 
+            label: 'БИЗНЕС', 
+            desc: 'Сложные конфликты и нештатные ситуации.', 
+            color: '#f39c12', 
+            requiredLevel: 30,  // 🔒 Очень высокий порог
+            unlocked: false
+        },
+        { 
+            id: 'first', 
+            label: 'ПЕРВЫЙ КЛАСС', 
+            desc: 'Максимальный стресс. Только для опытных.', 
+            color: '#e63946', 
+            requiredLevel: 50,  // 🔒 Максимальный порог
+            unlocked: false
+        }
     ];
-    
+    // ...
     grid.innerHTML = difficulties.map(diff => {
         const isLocked = playerLevel < diff.requiredLevel;
         return `
@@ -220,3 +248,157 @@ async function loadLeaderboard() {
 }
 
 loadLeaderboard();
+
+// ===== ЛОГИКА HTML-ЧАТА =====
+let chatData = {
+    npcName: '',
+    npcArchetype: null,
+    scenarioContext: '',
+    loyalty: 70,
+    safety: 70,
+    isProcessing: false
+};
+
+window.openChat = function(data) {
+    chatData = {
+        npcName: data.npcName || 'Пассажир',
+        npcArchetype: data.npcArchetype || null,
+        scenarioContext: data.scenarioContext || '',
+        loyalty: data.loyalty || 70,
+        safety: data.safety || 70,
+        isProcessing: false
+    };
+
+    // Заполняем UI
+    document.getElementById('chat-passenger-name').textContent = chatData.npcName;
+    document.getElementById('chat-passenger-archetype').textContent = chatData.npcArchetype?.name || 'Пассажир';
+    document.getElementById('chat-avatar').textContent = chatData.npcName.substring(0, 2).toUpperCase();
+    document.getElementById('chat-archetype-desc').textContent = chatData.npcArchetype?.description || '';
+    
+    updateChatScales();
+    
+    // Очищаем сообщения и добавляем приветствие
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.innerHTML = '';
+    addChatMessage('npc', 'Здравствуйте. Рад вас видеть в нашем поезде.', chatData.npcName);
+    
+    // Показываем оверлей
+    document.getElementById('chat-overlay').classList.add('active');
+    document.getElementById('chat-input').focus();
+};
+
+window.closeChat = function() {
+    document.getElementById('chat-overlay').classList.remove('active');
+    
+    // Возвращаем данные в Phaser и запускаем Debriefing
+    if (window.gameInstance && window.gameInstance.scene.getScene('GameLevel')) {
+        const gameLevel = window.gameInstance.scene.getScene('GameLevel');
+        gameLevel.updateBarsFromChat(chatData.loyalty, chatData.safety);
+        
+        // Запускаем Debriefing
+        window.gameInstance.scene.getScene('GameLevel').scene.launch('Debriefing', {
+            loyalty: chatData.loyalty,
+            safety: chatData.safety,
+            startLoyalty: chatData.loyalty,
+            startSafety: chatData.safety,
+            npcName: chatData.npcName
+        });
+    }
+};
+
+window.sendChatMessage = async function() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    
+    if (!text || chatData.isProcessing) return;
+    
+    chatData.isProcessing = true;
+    input.value = '';
+    
+    // Добавляем сообщение игрока
+    addChatMessage('player', text, 'Вы');
+    
+    // Показываем "Печатает..."
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chat-typing';
+    typingIndicator.textContent = 'Печатает...';
+    document.getElementById('chat-messages').appendChild(typingIndicator);
+    scrollToBottom();
+    
+    try {
+        // Отправляем запрос к API
+        const response = await fetch('http://127.0.0.1:8000/api/ai/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            body: JSON.stringify({
+                message: text,
+                scenario_context: chatData.scenarioContext
+            })
+        });
+        
+        typingIndicator.remove();
+        
+        if (response.ok) {
+            const data = await response.json();
+            addChatMessage('npc', data.response || '[Нет ответа]', chatData.npcName);
+            
+            // Обновляем шкалы
+            if (data.loyalty_change !== undefined) {
+                chatData.loyalty = Math.max(0, Math.min(100, chatData.loyalty + data.loyalty_change));
+            }
+            if (data.safety_change !== undefined) {
+                chatData.safety = Math.max(0, Math.min(100, chatData.safety + data.safety_change));
+            }
+            updateChatScales();
+        } else {
+            addChatMessage('npc', '[Система] Ошибка связи. Попробуйте позже.', 'Система');
+        }
+    } catch (error) {
+        typingIndicator.remove();
+        addChatMessage('npc', '[Система] Связь потеряна. Попробуйте позже.', 'Система');
+    }
+    
+    chatData.isProcessing = false;
+    input.focus();
+};
+
+window.handleChatKeyPress = function(event) {
+    if (event.key === 'Enter') {
+        sendChatMessage();
+    }
+};
+
+function addChatMessage(type, text, name) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${type}`;
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'chat-message-text';
+    textDiv.textContent = text;
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'chat-message-name';
+    nameDiv.textContent = name;
+    
+    messageDiv.appendChild(textDiv);
+    messageDiv.appendChild(nameDiv);
+    messagesContainer.appendChild(messageDiv);
+    
+    scrollToBottom();
+}
+
+function updateChatScales() {
+    document.getElementById('chat-loyalty-bar').style.width = chatData.loyalty + '%';
+    document.getElementById('chat-loyalty-value').textContent = chatData.loyalty + '%';
+    document.getElementById('chat-safety-bar').style.width = chatData.safety + '%';
+    document.getElementById('chat-safety-value').textContent = chatData.safety + '%';
+}
+
+function scrollToBottom() {
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
